@@ -14,10 +14,13 @@
           Content-Type: "application/json"
       register: api_result
     
-    - name: Display API response
+    - name: Search API response for JVHDomain and set extId as a fact
       ansible.builtin.set_fact:
         gc_profile_uuid: >-
           {{ api_result.json.data |
              selectattr('name', 'equalto', 'JVHDomain') |
              map(attribute='extId') | first }}
 
+    - name: Display extId
+      ansible.builtin.debug:
+        msg: "The extId for JVHDomain is: {{ gc_profile_uuid }}"
