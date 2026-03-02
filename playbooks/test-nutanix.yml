@@ -47,3 +47,26 @@
     - name: Print Off the extId for Windows Template
       ansible.builtin.debug:
         msg: "The extId for jvh-win2025-template is: {{ windows_template_extId }}"
+
+    - name: Get template versions
+        ansible.builtin.uri:
+          url: "https://{{ nutanix_host }}:9440/api/vmm/v4.2/content/templates/{{ windows_template_extId }}/versions"
+          method: GET
+          user: "{{ nutanix_username }}"
+          password: "{{ nutanix_password }}"
+          validate_certs: "{{ validate_certs }}"
+          force_basic_auth: true
+          headers:
+            Content-Type: "application/json"
+        register: template_versions
+
+    - name: Extract active version number
+        ansible.builtin.set_fact:
+          template_version: >-
+            {{ template_versions.json.data |
+            selectattr('isActiveVersion', 'equalto', true) |
+            map(attribute='versionNumber') | first }}
+
+    - name: Debug - confirm template version
+        ansible.builtin.debug:
+          msg: "Using template version: {{ template_version }}" 
