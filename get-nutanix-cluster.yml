@@ -5,9 +5,13 @@
   collections:
     - nutanix.ncp
 
+  vars:
+    # Replace these with your environment details or use an Ansible Vault
+
   tasks:
     - name: Fetch all cluster information from Prism Central
       nutanix.ncp.ntnx_clusters_info_v2:
+        validate_certs: false
       register: cluster_results
 
     - name: Display Name and extId for each cluster
