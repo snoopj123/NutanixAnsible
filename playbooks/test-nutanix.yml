@@ -15,6 +15,9 @@
       register: api_result
     
     - name: Display API response
-      ansible.builtin.debug:
-        var: api_result.json.data[0].extId
+      ansible.builtin.set_fact:
+        gc_profile_uuid: >-
+          {{ api_result.json.data |
+             selectattr('name', 'equalto', 'JVHDomain') |
+             map(attribute='extId') | first }}
 
