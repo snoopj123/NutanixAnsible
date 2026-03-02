@@ -65,7 +65,7 @@
         template_version: >-
           {{ template_versions.json.data |
           selectattr('isActiveVersion', 'equalto', true) |
-          map(attribute='versionNumber') | first }}
+          map(attribute='versionName') | first }}
 
     - name: Debug - confirm template version
       ansible.builtin.debug:
