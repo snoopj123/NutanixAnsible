@@ -13,3 +13,7 @@
         headers:
           Content-Type: "application/json"
       register: api_result
+    
+    - name: Display API response
+      ansible.builtin.debug:
+        var: api_result.json.data
