@@ -41,7 +41,7 @@
       ansible.builtin.set_fact:
         windows_template_extId: >-
           {{ templates_result.json.data |
-             selectattr('name', 'equalto', 'jvh-win2025-template') |
+             selectattr('templateName', 'equalto', 'jvh-win2025-template') |
              map(attribute='extId') | first }}
 
     - name: Print Off the extId for Windows Template
