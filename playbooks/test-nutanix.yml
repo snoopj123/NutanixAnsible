@@ -24,3 +24,26 @@
     - name: Print Off the extId for JVHDomain  
       ansible.builtin.debug:
         msg: "The extId for JVHDomain is: {{ gc_profile_uuid }}"
+
+    - name: Get Windows Template UUID
+      ansible.builtin.uri:
+        url: "https://{{ nutanix_host }}:9440/api/vmm/v4.2/content/templates"
+        method: GET
+        user: "{{ nutanix_username }}"
+        password: "{{ nutanix_password }}"
+        validate_certs: "{{ validate_certs }}"
+        force_basic_auth: true
+        headers:
+          Content-Type: "application/json"
+      register: templates_result
+
+    - name: Search API response for Windows Template and set extId as a fact
+      ansible.builtin.set_fact:
+        windows_template_uuid: >-
+          {{ templates_result.json.data |
+             selectattr('name', 'equalto', 'jvh-win2025-template') |
+             map(attribute='extId') | first }}
+
+    - name: Print Off the extId for Windows Template
+      ansible.builtin.debug:
+        msg: "The extId for jvh-win2025-template is: {{ windows_template_uuid }}"
