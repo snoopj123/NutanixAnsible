@@ -1,5 +1,6 @@
 - name: Get Guest Customization Profile UUID
   tasks:
+      - name: Get Guest Customization Profiles
       ansible.builtin.uri:
       url: "https://{{ nutanix_host }}:9440/api/vmm/v4.0/config/guest-customization-profiles"
       method: GET
@@ -13,6 +14,7 @@
 
 - name: Set profile UUID fact
   tasks:
+    - name: Set Guest Customization Profile UUID fact
     ansible.builtin.set_fact:
       gc_profile_uuid: >-
         {{ gc_profiles.json.data |
@@ -21,6 +23,7 @@
 
 - name: Deploy VM using Guest Customization Profile
   tasks:
+    - name: Deploy VM with Guest Customization Profile
     ansible.builtin.uri:
       url: "https://{{ nutanix_host }}:9440/api/vmm/v4.0/ahv/config/vms"
       method: POST
@@ -40,4 +43,4 @@
           config:
             $objectType: "vmm.v4.ahv.config.Sysprep"
             installType: "PREPARED"
-            guestCustomizationProfileReference: "{{ gc_profile_uuid }}"
+          guestCustomizationProfileReference: "{{ gc_profile_uuid }}"
