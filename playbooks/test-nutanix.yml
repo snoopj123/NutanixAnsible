@@ -60,10 +60,6 @@
           Content-Type: "application/json"
       register: template_versions
 
-    - name: Debug - confirm template versions retrieved
-      ansible.builtin.debug:
-        var: template_versions.json.data
-
     - name: Extract active version number
       ansible.builtin.set_fact:
         template_version: >-
