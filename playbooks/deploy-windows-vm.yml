@@ -2,14 +2,14 @@
   tasks:
       - name: Get Guest Customization Profiles
         ansible.builtin.uri:
-        url: "https://{{ nutanix_host }}:9440/api/vmm/v4.0/config/guest-customization-profiles"
-        method: GET
-        user: "{{ nutanix_username }}"
-        password: "{{ nutanix_password }}"
-        validate_certs: "{{ validate_certs }}"
-        force_basic_auth: true
-        headers:
-          Content-Type: "application/json"
+          url: "https://{{ nutanix_host }}:9440/api/vmm/v4.0/config/guest-customization-profiles"
+          method: GET
+          user: "{{ nutanix_username }}"
+          password: "{{ nutanix_password }}"
+          validate_certs: "{{ validate_certs }}"
+          force_basic_auth: true
+          headers:
+            Content-Type: "application/json"
         register: gc_profiles
 
 - name: Set profile UUID fact
