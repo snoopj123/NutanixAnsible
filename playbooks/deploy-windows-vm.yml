@@ -1,40 +1,43 @@
 - name: Get Guest Customization Profile UUID
-  ansible.builtin.uri:
-    url: "https://{{ nutanix_host }}:9440/api/vmm/v4.0/config/guest-customization-profiles"
-    method: GET
-    user: "{{ nutanix_username }}"
-    password: "{{ nutanix_password }}"
-    validate_certs: "{{ validate_certs }}"
-    force_basic_auth: true
-    headers:
-      Content-Type: "application/json"
-  register: gc_profiles
+  tasks:
+      ansible.builtin.uri:
+      url: "https://{{ nutanix_host }}:9440/api/vmm/v4.0/config/guest-customization-profiles"
+      method: GET
+      user: "{{ nutanix_username }}"
+      password: "{{ nutanix_password }}"
+      validate_certs: "{{ validate_certs }}"
+      force_basic_auth: true
+      headers:
+        Content-Type: "application/json"
+    register: gc_profiles
 
 - name: Set profile UUID fact
-  ansible.builtin.set_fact:
-    gc_profile_uuid: >-
-      {{ gc_profiles.json.data |
-         selectattr('name', 'equalto', 'JVHDomain') |
-         map(attribute='extId') | first }}
+  tasks:
+    ansible.builtin.set_fact:
+      gc_profile_uuid: >-
+        {{ gc_profiles.json.data |
+          selectattr('name', 'equalto', 'JVHDomain') |
+          map(attribute='extId') | first }}
 
 - name: Deploy VM using Guest Customization Profile
-  ansible.builtin.uri:
-    url: "https://{{ nutanix_host }}:9440/api/vmm/v4.0/ahv/config/vms"
-    method: POST
-    user: "{{ nutanix_username }}"
-    password: "{{ nutanix_password }}"
-    validate_certs: "{{ validate_certs }}"
-    force_basic_auth: true
-    headers:
-      Content-Type: "application/json"
-    body_format: json
-    body:
-      name: "{{ vm_name }}"
-      memorySizeBytes: "{{ memory_gb * 1073741824 }}"
-      numSockets: "{{ num_sockets }}"
-      numCoresPerSocket: "{{ vcpus_per_socket }}"
-      guestCustomization:
-        config:
-          $objectType: "vmm.v4.ahv.config.Sysprep"
-          installType: "PREPARED"
-          guestCustomizationProfileReference: "{{ gc_profile_uuid }}"
+  tasks:
+    ansible.builtin.uri:
+      url: "https://{{ nutanix_host }}:9440/api/vmm/v4.0/ahv/config/vms"
+      method: POST
+      user: "{{ nutanix_username }}"
+      password: "{{ nutanix_password }}"
+      validate_certs: "{{ validate_certs }}"
+      force_basic_auth: true
+      headers:
+        Content-Type: "application/json"
+      body_format: json
+      body:
+        name: "{{ vm_name }}"
+        memorySizeBytes: "{{ memory_gb * 1073741824 }}"
+        numSockets: "{{ num_sockets }}"
+        numCoresPerSocket: "{{ vcpus_per_socket }}"
+        guestCustomization:
+          config:
+            $objectType: "vmm.v4.ahv.config.Sysprep"
+            installType: "PREPARED"
+            guestCustomizationProfileReference: "{{ gc_profile_uuid }}"
