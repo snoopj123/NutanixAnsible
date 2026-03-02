@@ -16,4 +16,5 @@
     
     - name: Display API response
       ansible.builtin.debug:
-        var: api_result.json.data.name
+        var: api_result.json.data[0].name
+
