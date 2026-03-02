@@ -1,4 +1,6 @@
 - name: Make an API call
+  hosts: localhost
+  gather_facts: false
   tasks:
     - name: Call Nutanix API
       ansible.builtin.uri:
