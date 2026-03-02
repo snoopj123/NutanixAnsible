@@ -1,0 +1,34 @@
+---
+- name: Retrieve Nutanix Cluster External IDs
+  hosts: localhost
+  gather_facts: false
+  collections:
+    - nutanix.ncp
+
+  vars:
+    # Replace these with your environment details or use an Ansible Vault
+
+  tasks:
+    - name: Fetch all cluster information from Prism Central
+      nutanix.ncp.ntnx_clusters_info_v2:
+        validate_certs: false
+      register: cluster_results
+
+    - name: Display Name and extId for each cluster
+      debug:
+        msg: "Cluster Name: {{ item.name }} | External ID: {{ item.ext_id }}"
+      loop: "{{ cluster_results.response }}"
+      loop_control:
+        label: "{{ item.name }}"
+
+    - name: Set fact for a specific cluster ID (Optional)
+      set_fact:
+        target_cluster_id: "{{ item.ext_id }}"
+      loop: "{{ cluster_results.response }}"
+      when: item.name == "Your-Target-Cluster-Name"
+      no_log: true
+
+    - name: Print targeted cluster ID
+      debug:
+        var: target_cluster_id
+      when: target_cluster_id is defined
