@@ -20,5 +20,7 @@
           {{ api_result.json.data |
              selectattr('name', 'equalto', 'JVHDomain') |
              map(attribute='extId') | first }}
+
+    - name: Print Off the extId for JVHDomain  
       ansible.builtin.debug:
         msg: "The extId for JVHDomain is: {{ gc_profile_uuid }}"
