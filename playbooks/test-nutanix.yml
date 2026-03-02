@@ -1,11 +1,13 @@
 - name: Make an API call
-  ansible.builtin.uri:
-    url: "https://{{ nutanix_host }}:9440/api/endpoint"
-    method: GET
-    user: "{{ nutanix_username }}"
-    password: "{{ nutanix_password }}"
-    validate_certs: "{{ validate_certs }}"
-    force_basic_auth: true
-    headers:
-      Content-Type: "application/json"
-  register: api_result
+  tasks:
+    - name: Call Nutanix API
+      ansible.builtin.uri:
+        url: "https://{{ nutanix_host }}:9440/api/endpoint"
+        method: GET  
+        user: "{{ nutanix_username }}"
+        password: "{{ nutanix_password }}"
+        validate_certs: "{{ validate_certs }}"
+        force_basic_auth: true
+        headers:
+          Content-Type: "application/json"
+      register: api_result
