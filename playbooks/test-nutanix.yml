@@ -4,7 +4,7 @@
   tasks:
     - name: Call Nutanix API
       ansible.builtin.uri:
-        url: "https://{{ nutanix_host }}:9440/api/endpoint"
+        url: "https://{{ nutanix_host }}:9440/api/vmm/v4.2/ahv/config/vm-guest-customization-profiles"
         method: GET  
         user: "{{ nutanix_username }}"
         password: "{{ nutanix_password }}"
