@@ -151,9 +151,9 @@
              selectattr('name', 'equalto', vm_name) |
              map(attribute='extId') | first}} 
       
-    - name: Debug hidden spaces in VM ExtID
-      ansible.builtin.debug:
-        msg: "VM extId is: '{{ vm_extId }}' (length: {{ vm_extId | length }})"
+    - name: Clean VM ExtID of Hidden Space
+      ansible.builtin.set_fact:
+        vm_extId: "{{ vm_extId | regex_replace('\\s+$', '') }}"
     
     - name: Power on VM
       nutanix.ncp.ntnx_vms_power_actions_v2:
