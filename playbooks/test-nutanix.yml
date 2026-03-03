@@ -149,7 +149,7 @@
         vm_extId: >-
           {{ vm_search_result.json.data |
              selectattr('name', 'equalto', vm_name) |
-             map(attribute='extId') | first }} 
+             map(attribute='extId') | first | trim }} 
       
     - name: Power on VM
       nutanix.ncp.ntnx_vms_power_actions_v2:
