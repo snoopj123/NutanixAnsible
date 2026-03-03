@@ -62,12 +62,12 @@
 
     - name: Extract active version number
       ansible.builtin.set_fact:
-        template_version: >-
+        template_version_extId: >-
           {{ template_versions.json.data |
           selectattr('isActiveVersion', 'defined') |
           selectattr('isActiveVersion', 'equalto', true) |
-          map(attribute='versionName') | first }}
+          map(attribute='extId') | first }}
 
     - name: Debug - confirm template version
       ansible.builtin.debug:
-        msg: "Using template version: {{ template_version }}" 
+        msg: "Using template version: {{ template_version_extId }}"
