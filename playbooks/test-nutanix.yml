@@ -110,7 +110,7 @@
           numberOfVms: 1
           overrideVmConfigMap:
             "0":
-              name: "Ansible-VM-Deploy"
+              name: "Ans-Dply"
               guestCustomizationProfileConfig:
                 profile:
                   extId: "{{ gc_profile_uuid }}"
