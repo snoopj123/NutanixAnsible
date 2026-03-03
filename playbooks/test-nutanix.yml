@@ -66,7 +66,7 @@
           {{ template_versions.json.data |
           selectattr('isActiveVersion', 'defined') |
           selectattr('isActiveVersion', 'equalto', true) |
-          map(attribute='extId') | first }}
+          map(attribute='versionName') | first }}
 
     - name: Get Cluster Information
       nutanix.ncp.ntnx_clusters_info_v2:
@@ -105,7 +105,7 @@
           Ntnx-Request-Id: "{{ 999999 | random | to_uuid }}"
         body_format: json
         body:
-          versionNumber: "{{ template_version_extId }}"
+          versionNumber: "{{ template_version_name }}"
           numberOfVms: 1
           overrideVmConfigMap:
             "0":
