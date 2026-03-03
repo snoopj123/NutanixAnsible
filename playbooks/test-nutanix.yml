@@ -68,6 +68,9 @@
           selectattr('isActiveVersion', 'equalto', true) |
           map(attribute='extId') | first }}
 
-    - name: Debug - confirm template version
-      ansible.builtin.debug:
-        msg: "Using template version: {{ template_version_extId }}"
+    - name: Get Cluster Information
+      nutanix.ncp.ntnx_clusters_info_v2:
+        validate_certs: false
+      register: cluster_results
+
+    
