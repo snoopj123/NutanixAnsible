@@ -68,6 +68,7 @@
       ansible.builtin.set_fact:
         template_version: >-
           {{ template_versions.json.data |
+          selectattr('isActiveVersion', 'defined') |
           selectattr('isActiveVersion', 'equalto', true) |
           map(attribute='versionName') | first }}
 
