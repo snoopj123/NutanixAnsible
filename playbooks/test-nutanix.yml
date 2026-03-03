@@ -115,8 +115,8 @@
           Content-Type: "application/json"
       register: task_status
       until: task_status.json.data.status in ['SUCCEEDED', 'FAILED']
-      retries: 30
-      delay: 10
+      retries: 10
+      delay: 5
 
     - name: Fail if deployment failed
       ansible.builtin.fail:
