@@ -62,7 +62,7 @@
 
     - name: Extract active version number
       ansible.builtin.set_fact:
-        template_version_extId: >-
+        template_version_name: >-
           {{ template_versions.json.data |
           selectattr('isActiveVersion', 'defined') |
           selectattr('isActiveVersion', 'equalto', true) |
