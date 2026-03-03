@@ -2,7 +2,7 @@
   hosts: localhost
   gather_facts: false
   vars:
-    vm_name: "Ans-Deploy"
+    vm_name: "AnsDeploy"
   tasks:
     - name: Call Nutanix API
       ansible.builtin.uri:
