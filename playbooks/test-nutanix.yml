@@ -106,6 +106,8 @@
         body_format: json
         body:
           versionNumber: "{{ template_version_name }}"
+          clusterReference:
+            extId: "{{ target_cluster_id }}"
           numberOfVms: 1
           overrideVmConfigMap:
             "0":
@@ -113,7 +115,5 @@
               guestCustomizationProfileConfig:
                 profile:
                   extId: "{{ gc_profile_uuid }}"
-          clusterReference:
-            extId: "{{ target_cluster_id }}"
         status_code: 202
       register: deploy_result
