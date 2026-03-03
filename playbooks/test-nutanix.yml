@@ -23,10 +23,6 @@
              selectattr('name', 'equalto', 'JVHDomain') |
              map(attribute='extId') | first }}
 
-    - name: Print Off the extId for JVHDomain  
-      ansible.builtin.debug:
-        msg: "The extId for JVHDomain is: {{ gc_profile_uuid }}"
-
     - name: Get VM Templates from Nutanix API
       ansible.builtin.uri:
         url: "https://{{ nutanix_host }}:9440/api/vmm/v4.2/content/templates"
@@ -45,10 +41,6 @@
           {{ templates_result.json.data |
              selectattr('templateName', 'equalto', 'jvh-win2025-template') |
              map(attribute='extId') | first }}
-
-    - name: Print Off the extId for Windows Template
-      ansible.builtin.debug:
-        msg: "The extId for jvh-win2025-template is: {{ windows_template_extId }}"
 
     - name: Get template versions
       ansible.builtin.uri:
@@ -75,24 +67,12 @@
         validate_certs: false
       register: cluster_results
 
-    - name: Display Name and extId for each cluster
-      debug:
-        msg: "Cluster Name: {{ item.name }} | External ID: {{ item.ext_id }}"
-      loop: "{{ cluster_results.response }}"
-      loop_control:
-        label: "{{ item.name }}"
-
     - name: Set fact for a specific cluster ID (Optional)
       set_fact:
         target_cluster_id: "{{ item.ext_id }}"
       loop: "{{ cluster_results.response }}"
       when: item.name == "ucs-ntnx"
       no_log: true
-
-    - name: Print targeted cluster ID
-      debug:
-        var: target_cluster_id
-      when: target_cluster_id is defined
 
     - name: Deploy VM from template
       ansible.builtin.uri:
@@ -171,8 +151,10 @@
              selectattr('name', 'equalto', vm_name) |
              map(attribute='extId') | first }} 
       
-    - name: Debug - VM extId
-      ansible.builtin.debug:
-        msg: "The extId for VM {{ vm_name }} is: {{ vm_extId }}"
-    
-    
+    - name: Power on VM
+      nutanix.ncp.ntnx_vms_power_actions_v2:
+        ext_id: "{{ vm_extId }}"
+        state: power_on
+        validate_certs: false
+        wait: true
+      register: power_on_result
