@@ -1,6 +1,8 @@
 - name: Make an API call
   hosts: localhost
   gather_facts: false
+  vars:
+    vm_name: "Ans-Deploy"
   tasks:
     - name: Call Nutanix API
       ansible.builtin.uri:
@@ -110,9 +112,21 @@
           numberOfVms: 1
           overrideVmConfigMap:
             "0":
-              name: "Ans-Dply"
+              name: "{{ vm_name }}"
               guestCustomizationProfileConfig:
                 profile:
                   extId: "{{ gc_profile_uuid }}"
         status_code: 202
       register: deploy_result
+
+    - name: Get VM extId
+      ansible.builtin.uri:
+        url: "https://{{ nutanix_host }}:9440/api/vmm/v4.2/vms?filter=name eq {{ vm_name }}"
+        method: GET
+        user: "{{ nutanix_username }}"
+        password: "{{ nutanix_password }}"
+        validate_certs: false
+        force_basic_auth: true
+        headers:
+          Content-Type: "application/json"
+      register: vm_search_result
