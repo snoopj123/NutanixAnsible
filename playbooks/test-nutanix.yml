@@ -105,7 +105,7 @@
           Ntnx-Request-Id: "{{ 999999 | random | to_uuid }}"
         body_format: json
         body:
-          versionNumber: "{{ template_version }}"
+          versionNumber: "{{ template_version_extId }}"
           numberOfVms: 1
           overrideVmConfigMap:
             "0":
