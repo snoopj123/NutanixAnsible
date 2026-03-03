@@ -121,7 +121,7 @@
 
     - name: Get VM extId
       ansible.builtin.uri:
-        url: "https://{{ nutanix_host }}:9440/api/vmm/v4.2/vms?filter=name eq '{{ vm_name }}'"
+        url: "https://{{ nutanix_host }}:9440/api/vmm/v4.2/vms?filter=name eq \"{{ vm_name }}\""
         method: GET
         user: "{{ nutanix_username }}"
         password: "{{ nutanix_password }}"
