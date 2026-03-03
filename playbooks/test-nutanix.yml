@@ -134,7 +134,7 @@
         headers:
           Content-Type: "application/json"
       register: task_status
-      until: task_status.json.data.state in ['SUCCEEDED', 'FAILED']
+      until: task_status.json.data.status in ['SUCCEEDED', 'FAILED']
       retries: 30
       delay: 10
 
