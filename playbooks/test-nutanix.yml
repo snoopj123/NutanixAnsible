@@ -91,3 +91,29 @@
       debug:
         var: target_cluster_id
       when: target_cluster_id is defined
+
+    - name: Deploy VM from template
+      ansible.builtin.uri:
+        url: "https://{{ nutanix_host }}:9440/api/vmm/v4.2/content/templates/{{ windows_template_extId }}/$actions/deploy"
+        method: POST
+        user: "{{ nutanix_username }}"
+        password: "{{ nutanix_password }}"
+        validate_certs: false
+        force_basic_auth: true
+        headers:
+          Content-Type: "application/json"
+          Ntnx-Request-Id: "{{ 999999 | random | to_uuid }}"
+        body_format: json
+        body:
+          versionNumber: "{{ template_version }}"
+          numberOfVms: 1
+          overrideVmConfigMap:
+            "0":
+              name: "Ansible-Test-VM-Deploy"
+              guestCustomizationProfileConfig:
+                profile:
+                  extId: "{{ gc_profile_uuid }}"
+          clusterReference:
+            extId: "{{ target_cluster_id }}"
+        status_code: 202
+      register: deploy_result
