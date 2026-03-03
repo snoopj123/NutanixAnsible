@@ -119,6 +119,35 @@
         status_code: 202
       register: deploy_result
 
+    - name: Store Task UUID from deployment response
+      ansible.builtin.set_fact:
+        deploy_task_uid: "{{ deploy_result.json.data.extId }}"
+
+    - name: Poll for deployment task completion
+      ansible.builtin.uri:
+        url: "https://{{ nutanix_host }}:9440/api/prism/v4.2/config/tasks/{{ deploy_task_uid }}"
+        method: GET
+        user: "{{ nutanix_username }}"
+        password: "{{ nutanix_password }}"
+        validate_certs: false
+        force_basic_auth: true
+        headers:
+          Content-Type: "application/json"
+      register: task_status
+      until: task_status.json.data.state in ['SUCCEEDED', 'FAILED']
+      retries: 30
+      delay: 10
+
+    - name: Fail if deployment failed
+      ansible.builtin.fail:
+        msg: "Deployment failed: {{ task_status.json.data.errorDetail | default('No error detail') }}"
+      when: task_status.json.data.status == 'FAILED'
+
+    - name: Debug - deployment complete
+      ansible.builtin.debug:
+        msg: "VM {{ vm_name }} deployed successfully from template"
+      when: task_status.json.data.status == 'SUCCEEDED'
+
     - name: Set Filter String
       ansible.builtin.set_fact:
         vm_filter: "name eq '{{ vm_name }}'"
