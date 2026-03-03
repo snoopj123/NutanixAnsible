@@ -106,8 +106,7 @@
         body_format: json
         body:
           versionNumber: "{{ template_version_name }}"
-          clusterReference:
-            extId: "{{ target_cluster_id }}"
+          clusterReference: "{{ target_cluster_id }}"
           numberOfVms: 1
           overrideVmConfigMap:
             "0":
