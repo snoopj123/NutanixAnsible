@@ -119,9 +119,13 @@
         status_code: 202
       register: deploy_result
 
+    - name: Set Filter String
+      ansible.builtin.set_fact:
+        vm_filter: "name eq '{{ vm_name }}'"
+
     - name: Get VM extId
       ansible.builtin.uri:
-        url: "https://{{ nutanix_host }}:9440/api/vmm/v4.2/vms?filter=name eq \"{{ vm_name }}\""
+        url: "https://{{ nutanix_host }}:9440/api/vmm/v4.2/vms?filter={{ vm_filter | urlencode}}"
         method: GET
         user: "{{ nutanix_username }}"
         password: "{{ nutanix_password }}"
