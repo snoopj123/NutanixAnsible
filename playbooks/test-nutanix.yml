@@ -163,3 +163,16 @@
         headers:
           Content-Type: "application/json"
       register: vm_search_result
+
+    - name: Extract VM extId
+      ansible.builtin.set_fact:
+        vm_extId: >-
+          {{ vm_search_result.json.data |
+             selectattr('name', 'equalto', vm_name) |
+             map(attribute='extId') | first }} 
+      
+    - name: Debug - VM extId
+      ansible.builtin.debug:
+        msg: "The extId for VM {{ vm_name }} is: {{ vm_extId }}"
+    
+    
