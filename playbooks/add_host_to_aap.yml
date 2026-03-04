@@ -10,6 +10,7 @@
         inventory: "Windows Servers - Non-Domain Controllers"
         state: "present"
         variables:
+          ansible_host: "{{ vm_name }}"
           ansible_connection: "{{ ansible_connection }}"
           ansible_winrm_transport: "{{ ansible_winrm_transport }}"
           ansible_port: "{{ ansible_port }}"
