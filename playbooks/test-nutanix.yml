@@ -1,8 +1,7 @@
 - name: Make an API call
   hosts: localhost
   gather_facts: false
-  vars:
-    vm_name: "AnsDeploy"
+
   tasks:
     - name: Call Nutanix API
       ansible.builtin.uri:
