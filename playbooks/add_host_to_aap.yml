@@ -3,7 +3,7 @@
   tasks:
   - name: Add host to AAP inventory
     awx.awx.host:
-      host:
+      hosts:
         name: "{{ vm_name }}"
         inventory: "Windows Servers - Non-Domain Controllers"
         state: "present"
