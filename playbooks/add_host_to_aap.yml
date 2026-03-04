@@ -6,7 +6,7 @@
   - name: Add host to AAP inventory
     awx.awx.host:
       name: "{{ vm_name }}"
-      inventory: "Nutanix Windows Hosts"
+      inventory: 4
       state: present
       controller_host: "{{ lookup('env', 'CONTROLLER_HOST') }}"
       controller_username: "{{ lookup('env', 'CONTROLLER_USERNAME') }}"
