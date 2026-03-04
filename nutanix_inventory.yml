@@ -1,0 +1,27 @@
+---
+plugin: nutanix.ncp.ntnx_prism_vm_inventory_v2
+
+# Prism Central connection - pulled from environment variables
+# injected by your Nutanix credential type
+nutanix_host: "{{ lookup('env', 'NUTANIX_HOST') }}"
+nutanix_username: "{{ lookup('env', 'NUTANIX_USERNAME') }}"
+nutanix_password: "{{ lookup('env', 'NUTANIX_PASSWORD') }}"
+validate_certs: false
+
+# Pull all VMs and handle pagination automatically
+fetch_all_vms: true
+
+# Server-side OData filter - only VMs with win- prefix
+filter: "startswith(name, 'win-')"
+
+# Client-side filter - only powered on VMs
+filters:
+  - "power_state == 'ON'"
+
+# Set WinRM connection variables on every host
+compose:
+  ansible_host: "nics[0].ipv4_addresses[0]"
+  ansible_connection: "'winrm'"
+  ansible_winrm_transport: "'ntlm'"
+  ansible_port: 5985
+  ansible_winrm_server_cert_validation: "'ignore'"
