@@ -1,11 +1,13 @@
 ---
 - name: Add newly deployed VM to AAP inventory
-  awx.awx.host:
-    name: "{{ vm_name }}"
-    inventory: "Windows Servers - Non-Domain Controllers"
-    state: "present"
-    variables:
-      ansible_connection: winrm
+  tasks:
+  - name: Add host to AAP inventory
+    awx.awx.host:
+      name: "{{ vm_name }}"
+      inventory: "Windows Servers - Non-Domain Controllers"
+      state: "present"
+      variables:
+        ansible_connection: winrm
       ansible_winrm_transport: ntlm
       ansible_port: 5985
       ansible_winrm_server_cert_validation: ignore
