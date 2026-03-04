@@ -1,6 +1,7 @@
 ---
 - name: Add newly deployed VM to AAP inventory
   hosts: localhost
+  gather_facts: false
   tasks:
   - name: Add host to AAP inventory
     awx.awx.host:
