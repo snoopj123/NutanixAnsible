@@ -3,7 +3,7 @@
   awx.awx.host:
     name: "{{ vm_name }}"
     inventory: "Windows Servers - Non-Domain Controllers"
-    state: present
+    state: "present"
     variables:
       ansible_connection: winrm
       ansible_winrm_transport: ntlm
