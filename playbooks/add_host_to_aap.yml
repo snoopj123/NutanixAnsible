@@ -7,7 +7,7 @@
     awx.awx.host:
       host:
         name: "{{ vm_name }}"
-        inventory: "Windows Servers - Non-Domain Controllers"
+        inventory: "Nutanix Windows Hosts"
         state: "present"
         variables:
           ansible_host: "{{ vm_name }}"
