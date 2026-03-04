@@ -4,7 +4,7 @@
   gather_facts: false
   tasks:
   - name: Add host to AAP inventory
-    awx.awx.host:
+    ansible.controller.host:
       name: "{{ vm_name }}"
       inventory: 4
       state: present
