@@ -8,13 +8,7 @@
       host:
         name: "{{ vm_name }}"
         inventory: "Nutanix Windows Hosts"
-        state: "present"
-        variables:
-          ansible_host: "{{ vm_name }}"
-          ansible_connection: "{{ ansible_connection }}"
-          ansible_winrm_transport: "{{ ansible_winrm_transport }}"
-          ansible_port: "{{ ansible_port }}"
-          ansible_winrm_server_cert_validation: "{{ ansible_winrm_server_cert_validation }}"
+        state: present
         controller_host: "{{ lookup('env', 'CONTROLLER_HOST') }}"
         controller_username: "{{ lookup('env', 'CONTROLLER_USERNAME') }}"
         controller_password: "{{ lookup('env', 'CONTROLLER_PASSWORD') }}"
