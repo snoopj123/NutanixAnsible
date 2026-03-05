@@ -40,4 +40,5 @@
 
     - name: Return VM IP address
       ansible.builtin.set_stats:
-        vm_ip: "{{ vm_info.json.data.nics[0].nicNetworkInfo.ipv4Info.learnedIpAddresses[0].value }}"
+        data:
+          vm_ip: "{{ vm_info.json.data.nics[0].nicNetworkInfo.ipv4Info.learnedIpAddresses[0].value }}"
