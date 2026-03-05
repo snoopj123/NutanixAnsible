@@ -20,3 +20,9 @@
         "jvh.local" in vm_info.json.data.guestTools.guestInfo.dnsName.value
       retries: 20
       delay: 15
+
+    - name: Display VM FDQN and VM IP Address
+      ansible.builtin.debug:
+        msg: >
+          VM FQDN: {{ vm_info.json.data.guestTools.guestInfo.dnsName.value }},
+          VM IP: {{ vm_info.json.data.nics[0].ipv4Info.learnedIpAddresses[0].value }}
