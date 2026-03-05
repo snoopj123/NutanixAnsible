@@ -15,11 +15,8 @@
         force_basic_auth: true
         status_code: 200
       register: vm_info
-      #until: >
-      #  vm_info.json.data.guestTools.guestInfo.dnsName is defined and
-      #  "jvh.local" in vm_info.json.data.guestTools.guestInfo.dnsName
-      #retries: 20
-      #delay: 15
-    - name: Display VM Information
-      ansible.builtin.debug:
-        var: vm_info.json.data.guestTools.guestInfo.dnsName.value
+      until: >
+        vm_info.json.data.guestTools.guestInfo.dnsName.value is defined and
+        "jvh.local" in vm_info.json.data.guestTools.guestInfo.dnsName.value
+      retries: 20
+      delay: 15
