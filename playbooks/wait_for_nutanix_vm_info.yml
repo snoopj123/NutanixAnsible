@@ -2,7 +2,7 @@
 - name: Wait for Nutanix VM Information
   hosts: localhost
   gather_facts: false
-  
+
   tasks:
     - name: Wait for VM information to be available from Nutanix API
       ansible.builtin.uri:
