@@ -1,0 +1,22 @@
+---
+- name: Wait for Nutanix VM Information
+  hosts: localhost
+  gather_facts: false
+  vars:
+    deployed_vm_extId: "ce074872-0719-4448-7113-c608dc4b0220"
+  tasks:
+    - name: Wait for VM information to be available from Nutanix API
+      ansible.builtin.uri:
+        url: "https://{{ nutanix_host }}:9440/api/vmm/v4.2/ahv/config/vms/{{ deployed_vm_extId }}"
+        method: GET
+        user: "{{ nutanix_username }}"
+        password: "{{ nutanix_password }}"
+        validate_certs: false
+        force_basic_auth: true
+        status_code: 200
+      register: vm_info
+      until: >
+        vm_info.json.data.guestTools.guestInfo.dnsName is defined and
+        "jvh.local" in vm_info.json.data.guestTools.guestInfo.dnsName
+      retries: 20
+      delay: 15
