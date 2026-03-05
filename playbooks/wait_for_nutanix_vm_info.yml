@@ -42,3 +42,4 @@
       ansible.builtin.set_stats:
         data:
           vm_ip: "{{ vm_info.json.data.nics[0].nicNetworkInfo.ipv4Info.learnedIpAddresses[0].value }}"
+        per_host: false
