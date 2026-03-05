@@ -3,7 +3,7 @@
   hosts: localhost
   gather_facts: false
   vars:
-    deployed_vm_extId: "ce074872-0719-4448-7113-c608dc4b0220"
+    deployed_vm_extId: "c02b8b3a-623a-4ae6-6ea5-041e14175fad"
   tasks:
     - name: Wait for VM information to be available from Nutanix API
       ansible.builtin.uri:
