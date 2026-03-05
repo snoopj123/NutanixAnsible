@@ -13,6 +13,7 @@
       controller_password: "{{ lookup('env', 'CONTROLLER_PASSWORD') }}"
       validate_certs: false
       variables:
+        ansible_host: "{{ vm_ip }}"
         ansible_connection: winrm
         ansible_winrm_transport: ntlm
         ansible_port: 5985
