@@ -22,4 +22,4 @@
       #delay: 15
     - name: Display VM Information
       ansible.builtin.debug:
-        var: vm_info.json.data
+        var: vm_info.json.data.guestTools.guestInfo.dnsName.value
