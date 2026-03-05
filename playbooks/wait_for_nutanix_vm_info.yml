@@ -17,7 +17,7 @@
       until: >
         vm_info.json.data.guestTools.guestInfo.dnsName.value is defined and
         "jvh.local" in vm_info.json.data.guestTools.guestInfo.dnsName.value
-      retries: 20
+      retries: 25
       delay: 15
 
     - name: Display VM FDQN and VM IP Address
