@@ -38,6 +38,6 @@
       ansible.builtin.debug:
         msg: "WinRM is now available on the VM. Proceeding with the playbook execution."
 
-    - name: Return VM IP address as a fact
-      ansible.builtin.set_fact:
+    - name: Return VM IP address
+      ansible.builtin.set_stats:
         vm_ip: "{{ vm_info.json.data.nics[0].nicNetworkInfo.ipv4Info.learnedIpAddresses[0].value }}"
