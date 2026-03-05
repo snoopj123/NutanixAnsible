@@ -3,7 +3,7 @@
   gather_facts: false
 
   tasks:
-    - name: Call Nutanix API
+    - name: Call Nutanix API to get Guest Customization Profiles
       ansible.builtin.uri:
         url: "https://{{ nutanix_host }}:9440/api/vmm/v4.2/ahv/config/vm-guest-customization-profiles"
         method: GET  
