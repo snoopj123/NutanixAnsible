@@ -26,3 +26,15 @@
         msg: >
           VM FQDN: {{ vm_info.json.data.guestTools.guestInfo.dnsName.value }},
           VM IP: {{ vm_info.json.data.nics[0].nicNetworkInfo.ipv4Info.learnedIpAddresses[0].value }}
+
+    - name: Wait for WinRM to be available on the VM
+      ansible.builtin.wait_for:
+        host: "{{ vm_info.json.data.guestTools.guestInfo.dnsName.value }}"
+        port: 5985
+        delay: 15
+        timeout: 300
+        state: started
+
+    - name: Display message indicating WinRM is available
+      ansible.builtin.debug:
+        msg: "WinRM is now available on the VM. Proceeding with the playbook execution."
