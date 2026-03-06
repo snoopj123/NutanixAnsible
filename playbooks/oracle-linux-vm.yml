@@ -57,6 +57,10 @@
         validate_certs: false
       register: template_details
 
+    - name: Show Template Version Output
+      ansible.builtin.debug:
+        var: template_details.response
+
     - name: Set fact for active template version
       ansible.builtin.set_fact:
         template_version_name: >-
