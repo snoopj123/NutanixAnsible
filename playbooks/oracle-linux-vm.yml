@@ -9,7 +9,8 @@
         nutanix_host: "{{ nutanix_host }}"
         nutanix_username: "{{ nutanix_username }}"
         nutanix_password: "{{ nutanix_password }}"
-        validate_certs: "{{ validate_certs }}
+        validate_certs: "{{ validate_certs }}"
+        filter: "templateName eq 'oracle-linux-9.7'"
       register: template_info
  
     - name: Display Response
