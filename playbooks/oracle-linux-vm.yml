@@ -63,5 +63,5 @@
               cloudinit:
                 cloud_init_script:
                   user_data:
-                   value: "{{ cloud_init_script | b64encode }}"
+                   value: "{{ cloud_init_script }}"
       register: deploy_result
