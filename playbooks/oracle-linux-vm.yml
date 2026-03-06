@@ -10,7 +10,7 @@
         nutanix_username: "{{ nutanix_username }}"
         nutanix_password: "{{ nutanix_password }}"
         validate_certs: "{{ validate_certs }}
-        filter: "display_name eq 'oracle-linux-9.7'"
+        #filter: "display_name eq 'oracle-linux-9.7'"
       register: template_info
 
     - name: Set Template extId as a fact
