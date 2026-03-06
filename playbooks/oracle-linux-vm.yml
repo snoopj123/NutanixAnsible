@@ -57,11 +57,12 @@
         ext_id: "{{ oracle_linux_template_extId }}"
         number_of_vms: 1
         override_vms_config:
-          - name: "jvh-oracle-linux"
+          "0":
+            name: "jvh-oracle-linux"
             guest_customization:
              config:
               cloudinit:
                 cloud_init_script:
                   user_data:
-                   value: "{{ cloud_init_script }}"
+                   value: "{{ cloud_init_script | b64encode }}"
       register: deploy_result
