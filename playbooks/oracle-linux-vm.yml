@@ -14,10 +14,6 @@
       ansible.builtin.set_fact:
         oracle_linux_template_extId: "{{ template_info.response[0].ext_id }}"
 
-    - name: Display Oracle Linux Template extId
-      ansible.builtin.debug:
-        msg: "Oracle Linux Template extId: {{ oracle_linux_template_extId }}"
-
     - name: Render cloud-init script for Oracle Linux Template
       ansible.builtin.set_fact:
         cloud_init_script: |
@@ -64,12 +60,6 @@
     - name: Set Template Version Id as a fact
       ansible.builtin.set_fact:
         template_version_id: "{{ template_details.response.template_version_spec.ext_id }}"
-
-    - name: Display VM template extId and name of active version
-      ansible.builtin.debug:
-        msg: >
-          Oracle Linux Template extId: {{ oracle_linux_template_extId }},
-          Active Version: {{ template_version_id }}
     
     - name: Create Nutanix VM using the Oracle Linux Template
       nutanix.ncp.ntnx_templates_deploy_v2:
