@@ -73,9 +73,6 @@
     
     - name: Create Nutanix VM using the Oracle Linux Template
       nutanix.ncp.ntnx_templates_deploy_v2:
-        nutanix_host: "{{ nutanix_host }}"
-        nutanix_username: "{{ nutanix_username }}"
-        nutanix_password: "{{ nutanix_password }}"
         validate_certs: "{{ validate_certs }}"
         ext_id: "{{ oracle_linux_template_extId }}"
         cluster_reference: "{{ target_cluster_id }}"
@@ -90,3 +87,9 @@
                     user_data:
                       value: "{{ cloud_init_script | b64encode }}"
       register: deploy_result
+
+    - name: Power on Oracle Linux VM
+      nutanix.ncp.ntnx_vms_powerstate_v2:
+        ext_id: "{{ deploy_result.response[0].ext_id }}"
+        state: "power_on"
+        validate_certs: false
