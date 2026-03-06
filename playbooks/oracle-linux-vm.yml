@@ -21,8 +21,8 @@
       ansible.builtin.set_fact:
         cloud_init_script: |
           #cloud-config
-          hostname: changeme
-          fqdn: changeme.example.com
+          hostname: jvh-oracle-linux
+          fqdn: jvh-oracle-linux.example.com
           users:
           - name: ansible
             sudo: ALL=(ALL) NOPASSWD:ALL
@@ -47,3 +47,20 @@
     - name: Display the rendered cloud-init script
       ansible.builtin.debug:
         msg: "{{ cloud_init_script }}"
+
+    - name: Create Nutanix VM using the Oracle Linux Template
+      nutanix.ncp.ntnx_templates_deploy_v2:
+        nutanix_host: "{{ nutanix_host }}"
+        nutanix_username: "{{ nutanix_username }}"
+        nutanix_password: "{{ nutanix_password }}"
+        validate_certs: "{{ validate_certs }}"
+        template_extId: "{{ oracle_linux_template_extId }}"
+        override_vms_config:
+          name: "jvh-oracle-linux"
+          guest_customization:
+            config:
+              cloudinit:
+                cloud_init_script:
+                  user_data:
+                    value: "{{ cloud_init_script | b64encode }}"
+      register: deploy_result
