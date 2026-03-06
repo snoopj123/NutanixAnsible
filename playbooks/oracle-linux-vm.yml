@@ -84,8 +84,12 @@
         filter: "name eq '{{ vm_name }}'"
       register: vm_info
 
+    - name: Store VM extId as a fact
+      ansible.builtin.set_fact:
+        deployed_vm_extId: "{{ vm_info.response[0].ext_id }}"
+
     - name: Power on Oracle Linux VM
       nutanix.ncp.ntnx_vms_power_actions_v2:
-        ext_id: "{{ vm_info.response[0].ext_id }}"
+        ext_id: "{{ deployed_vm_extId }}"
         state: "power_on"
         validate_certs: false
