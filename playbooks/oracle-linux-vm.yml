@@ -18,8 +18,8 @@
       ansible.builtin.set_fact:
         cloud_init_script: |
           #cloud-config
-          hostname: jvh-oracle-linux
-          fqdn: jvh-oracle-linux.jvh.local
+          hostname: "{{ vm_name}}"
+          fqdn: "{{ vm_name }}.jvh.local"
           users:
           - name: ansible
             sudo: ALL=(ALL) NOPASSWD:ALL
@@ -69,7 +69,7 @@
         version_id: "{{ template_version_id }}"
         number_of_vms: 1
         override_vms_config:
-          - name: "jvh-oracle-linux"
+          - name: "{{ vm_name }}"
             guest_customization:
               config:
                 cloudinit:
@@ -81,7 +81,7 @@
     - name: Get VM extId
       nutanix.ncp.ntnx_vms_info_v2:
         validate_certs: false
-        filter: "name eq 'jvh-oracle-linux'"
+        filter: "name eq '{{ vm_name }}'"
       register: vm_info
 
     - name: Power on Oracle Linux VM
