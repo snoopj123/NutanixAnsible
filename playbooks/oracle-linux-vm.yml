@@ -57,7 +57,8 @@
         ext_id: "{{ oracle_linux_template_extId }}"
         number_of_vms: 1
         override_vms_config:
-          - name: "jvh-oracle-linux"
+          - name: override_vm_config
+            name: "jvh-oracle-linux"
             guest_customization:
               config:
                 cloudinit:
