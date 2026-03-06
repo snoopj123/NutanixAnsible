@@ -47,6 +47,10 @@
         validate_certs: false
       register: cluster_results
 
+    - name: Set fact for target cluster ID
+      ansible.builtin.set_fact:
+        target_cluster_id: "{{ cluster_results.response[0].ext_id }}"
+
     - name: Deploy VM from template
       ansible.builtin.uri:
         url: "https://{{ nutanix_host }}:9440/api/vmm/v4.2/content/templates/{{ oracle_linux_template_extId }}/$actions/deploy"
