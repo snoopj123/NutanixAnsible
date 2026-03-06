@@ -94,6 +94,6 @@
 
     - name: Power on Oracle Linux VM
       nutanix.ncp.ntnx_vms_power_actions_v2:
-        ext_id: "{{ deploy_result.response.ext_id }}"
+        ext_id: "{{ deployed_vm_extId }}"
         state: "power_on"
         validate_certs: false
