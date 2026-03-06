@@ -22,7 +22,7 @@
         cloud_init_script: |
           #cloud-config
           hostname: jvh-oracle-linux
-          fqdn: jvh-oracle-linux.example.com
+          fqdn: jvh-oracle-linux.jvh.local
           users:
           - name: ansible
             sudo: ALL=(ALL) NOPASSWD:ALL
@@ -58,11 +58,11 @@
         number_of_vms: 1
         override_vms_config:
           "0":
-            name: "jvh-oracle-linux"
-            guest_customization:
-             config:
-              cloudinit:
-                cloud_init_script:
-                  user_data:
-                   value: "{{ cloud_init_script | b64encode }}"
+            - name: "jvh-oracle-linux"
+              guest_customization:
+                config:
+                  cloudinit:
+                    cloud_init_script:
+                      user_data:
+                        value: "{{ cloud_init_script | b64encode }}"
       register: deploy_result
