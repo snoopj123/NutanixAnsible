@@ -94,10 +94,6 @@
         filter: "name eq 'jvh-oracle-linux'"
       register: vm_info
 
-    - name: Display VM Info
-      ansible.builtin.debug:
-        var: vm_info
-
     - name: Power on Oracle Linux VM
       nutanix.ncp.ntnx_vms_power_actions_v2:
         ext_id: "{{ vm_info.response[0].ext_id }}"
