@@ -1,5 +1,5 @@
 ---
-- name: Make an API call
+- name: Use Nutanix Ansible Collection to Get Oracle Linux Template Information
   hosts: localhost
   gather_facts: false
 
