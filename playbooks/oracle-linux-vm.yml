@@ -69,7 +69,7 @@
       ansible.builtin.debug:
         msg: >
           Oracle Linux Template extId: {{ oracle_linux_template_extId }},
-          Active Version: {{ template_version_name }}
+          Active Version: {{ template_version_id }}
     
     - name: Create Nutanix VM using the Oracle Linux Template
       nutanix.ncp.ntnx_templates_deploy_v2:
