@@ -6,6 +6,7 @@
   tasks:
     - name: Get Oracle Linux Template Information
       nutanix.ncp.ntnx_templates_info_v2:
+        validate_certs: false
         filter: "templateName eq 'oracle-linux-9.7'"
       register: template_info
  
