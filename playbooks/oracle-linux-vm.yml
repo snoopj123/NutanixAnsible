@@ -15,4 +15,4 @@
  
     - name: Display Response
       ansible.builtin.debug:
-        msg: "Response: {{ template_info.response }}"
+        msg: "Response: {{ template_info.response.extId }}"
