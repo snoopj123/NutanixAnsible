@@ -63,7 +63,7 @@
 
     - name: Show Template Version Output
       ansible.builtin.debug:
-        var: template_details.response[0].is_active_version
+        var: template_details.response
 
     - name: Set fact for active template version
       ansible.builtin.set_fact:
