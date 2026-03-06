@@ -43,4 +43,7 @@
           timezone: America/Los_Angeles
           runcmd:
             - systemctl enable --now sshd
-    
+
+    - name: Display the rendered cloud-init script
+      ansible.builtin.debug:
+        msg: "{{ cloud_init_script }}"
