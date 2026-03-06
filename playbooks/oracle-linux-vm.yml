@@ -89,7 +89,7 @@
       register: deploy_result
 
     - name: Power on Oracle Linux VM
-      nutanix.ncp.ntnx_vms_powerstate_v2:
+      nutanix.ncp.ntnx_vms_power_actions_v2:
         ext_id: "{{ deploy_result.response[0].ext_id }}"
         state: "power_on"
         validate_certs: false
