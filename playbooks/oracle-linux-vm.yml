@@ -61,9 +61,9 @@
         validate_certs: false
       register: template_details
 
-    - name: Set Template Version Name
+    - name: Set Template Version Id as a fact
       ansible.builtin.set_fact:
-        template_version_name: "{{ template_details.response.template_version_spec.version_name }}"
+        template_version_id: "{{ template_details.response.template_version_spec.ext_id }}"
 
     - name: Display VM template extId and name of active version
       ansible.builtin.debug:
@@ -78,39 +78,15 @@
         nutanix_password: "{{ nutanix_password }}"
         validate_certs: "{{ validate_certs }}"
         ext_id: "{{ oracle_linux_template_extId }}"
-        cluster_ext_id: "{{ target_cluster_id }}"
+        cluster_reference: "{{ target_cluster_id }}"
+        version_id: "{{ template_version_id }}"
         number_of_vms: 1
         override_vms_config:
-          name: "jvh-oracle-linux"
-          guest_customization:
-           config:
-            cloudinit:
-             cloud_init_script:
-              user_data:
-               value: "{{ cloud_init_script | b64encode }}"
-      register: deploy_result
-    
-    - name: Deploy VM from template
-      ansible.builtin.uri:
-        url: "https://{{ nutanix_host }}:9440/api/vmm/v4.2/content/templates/{{ oracle_linux_template_extId }}/$actions/deploy"
-        method: POST
-        user: "{{ nutanix_username }}"
-        password: "{{ nutanix_password }}"
-        validate_certs: false
-        force_basic_auth: true
-        headers:
-          Content-Type: "application/json"
-          Ntnx-Request-Id: "{{ 999999 | random | to_uuid }}"
-        body_format: json
-        body:
-          versionNumber: "{{ template_version_name }}"
-          clusterReference: "{{ target_cluster_id }}"
-          numberOfVms: 1
-          overrideVmConfigMap:
-            "0":
-              name: "{{ vm_name }}"
-              guestCustomizationProfileConfig:
-                profile:
-                  extId: "{{ gc_profile_uuid }}"
-        status_code: 202
+          - name: "jvh-oracle-linux"
+            guest_customization:
+              config:
+                cloudinit:
+                  cloud_init_script:
+                    user_data:
+                      value: "{{ cloud_init_script | b64encode }}"
       register: deploy_result
