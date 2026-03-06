@@ -54,7 +54,8 @@
         nutanix_username: "{{ nutanix_username }}"
         nutanix_password: "{{ nutanix_password }}"
         validate_certs: "{{ validate_certs }}"
-        template_extId: "{{ oracle_linux_template_extId }}"
+        ext_id: "{{ oracle_linux_template_extId }}"
+        number_of_vms: 1
         override_vms_config:
           name: "jvh-oracle-linux"
           guest_customization:
