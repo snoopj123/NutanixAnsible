@@ -1,0 +1,18 @@
+- name: Make an API call
+  hosts: localhost
+  gather_facts: false
+
+  tasks:
+
+    - name: Get Oracle Linux Template Information
+      nutanix.ncp.ntnx_templates_info_v2:
+        nutanix_host: "{{ nutanix_host }}"
+        nutanix_username: "{{ nutanix_username }}"
+        nutanix_password: "{{ nutanix_password }}"
+        validate_certs: "{{ validate_certs }}
+        filter: "templateName eq 'oracle-linux-9.7'"
+      register: template_info
+
+    - name: Set Template extId as a fact
+      ansible.builtin.set_fact:
+        oracle_linux_template_extId: "{{ template_info.response[0].extId }}"
