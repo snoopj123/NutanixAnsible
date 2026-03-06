@@ -61,17 +61,9 @@
         validate_certs: false
       register: template_details
 
-    - name: Show Template Version Output
-      ansible.builtin.debug:
-        var: template_details.response.template_version_spec.is_active_version
-
-    - name: Set fact for active template version
+    - name: Set Template Version Name
       ansible.builtin.set_fact:
-        template_version_name: >-
-          {{ template_details.response.template_version_spec |
-          selectattr('is_active_version', 'defined') |
-          selectattr('is_active_version', 'equalto', true) |
-          map(attribute='version_name') | first }}
+        template_version_name: "{{ template_details.response.template_version_spec.version_name }}"
 
     - name: Display VM template extId and name of active version
       ansible.builtin.debug:
