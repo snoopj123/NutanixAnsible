@@ -11,11 +11,7 @@
         nutanix_password: "{{ nutanix_password }}"
         validate_certs: "{{ validate_certs }}
       register: template_info
-
-    - name: Set Template extId as a fact
-      ansible.builtin.set_fact:
-        oracle_linux_template_extId: "{{ template_info.response }}"
  
     - name: Display Response
       ansible.builtin.debug:
-        msg: "Response: {{ oracle_linux_template_extId }}"
+        msg: "Response: {{ template_info.response }}"
