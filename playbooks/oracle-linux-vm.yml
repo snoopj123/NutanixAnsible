@@ -13,6 +13,7 @@
         filter: "templateName eq 'oracle-linux-9.7'"
       register: template_info
  
-    - name: Display Response
-      ansible.builtin.debug:
-        msg: "Response: {{ template_info.response[0].ext_id }}"
+    - name: Save Template extId as a fact
+      ansible.builtin.set_fact:
+        oracle_linux_template_extId: "{{ template_info.response[0].ext_id }}"
+    
