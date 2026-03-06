@@ -51,6 +51,26 @@
       ansible.builtin.set_fact:
         target_cluster_id: "{{ cluster_results.response[0].ext_id }}"
 
+    - name: Retrieve Template Version
+      nutanix.ncp.ntnx_templates_info_v2:
+        ext_id: "{{ oracle_linux_template_extId }}"
+        validate_certs: false
+      register: template_details
+
+    - name: Set fact for active template version
+      ansible.builtin.set_fact:
+        template_version_name: >-
+          {{ template_details.response[0].versions |
+          selectattr('is_active_version', 'defined') |
+          selectattr('is_active_version', 'equalto', true) |
+          map(attribute='version_name') | first }}
+
+    - name: Display VM template extId and name of active version
+      ansible.builtin.debug:
+        msg: >
+          Oracle Linux Template extId: {{ oracle_linux_template_extId }},
+          Active Version: {{ template_version_name }}
+
     - name: Deploy VM from template
       ansible.builtin.uri:
         url: "https://{{ nutanix_host }}:9440/api/vmm/v4.2/content/templates/{{ oracle_linux_template_extId }}/$actions/deploy"
