@@ -88,12 +88,14 @@
                       value: "{{ cloud_init_script | b64encode }}"
       register: deploy_result
 
-    - name: Remove junk from VM ExtId
-      ansible.builtin.set_fact:
-        deployed_vm_extId: "{{ deploy_result.response.ext_id | split(':') | last }}"
+    - name: Get VM extId
+      nutanix.ncp.ntnx_vms_info_v2:
+        validate_certs: false
+        filter: "name eq 'jvh-oracle-linux'"
+      register: vm_info
 
     - name: Power on Oracle Linux VM
       nutanix.ncp.ntnx_vms_power_actions_v2:
-        ext_id: "{{ deployed_vm_extId }}"
+        ext_id: "{{ vm_info.response.ext_id }}"
         state: "power_on"
         validate_certs: false
