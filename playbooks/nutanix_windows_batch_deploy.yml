@@ -77,9 +77,9 @@
               }
             }
         }] }}
-  loop: "{{ data_disks_gb }}"
-  loop_control:
-    index_var: idx
+      loop: "{{ data_disks_gb }}"
+      loop_control:
+        index_var: idx
 
     # -------------------------------------------------------
     # Fire all VM creates in parallel using async
