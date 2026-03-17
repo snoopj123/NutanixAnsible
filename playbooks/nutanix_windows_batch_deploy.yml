@@ -1,0 +1,139 @@
+---
+- name: Batch deploy Windows VMs via nutanix.ncp
+  hosts: localhost
+  gather_facts: false
+
+  tasks:
+
+    # -------------------------------------------------------
+    # Resolve ext_ids up front
+    # -------------------------------------------------------
+    - name: Get cluster info
+      nutanix.ncp.ntnx_clusters_info_v2:
+        filter: "name eq '{{ cluster_name }}'"
+      register: cluster_info
+
+    - name: Set cluster ext_id
+      ansible.builtin.set_fact:
+        cluster_ext_id: "{{ cluster_info.response[0].ext_id }}"
+
+    - name: Get subnet info
+      nutanix.ncp.ntnx_subnets_info_v2:
+        filter: "name eq '{{ subnet_name }}'"
+      register: subnet_info
+
+    - name: Set subnet ext_id
+      ansible.builtin.set_fact:
+        subnet_ext_id: "{{ subnet_info.response[0].ext_id }}"
+
+    - name: Get image info
+      nutanix.ncp.ntnx_images_info_v2:
+        filter: "name eq '{{ template_name }}'"
+      register: image_info
+
+    - name: Set image ext_id
+      ansible.builtin.set_fact:
+        image_ext_id: "{{ image_info.response[0].ext_id }}"
+
+    # -------------------------------------------------------
+    # Build VM name list from prefix + count
+    # -------------------------------------------------------
+    - name: Build VM name list
+      ansible.builtin.set_fact:
+        vm_names: >-
+          {{ range(1, vm_count | int + 1)
+             | map('string')
+             | map('regex_replace', '^(\d)$', '0\\1')
+             | map('regex_replace', '^(.+)$', vm_prefix + '\\1')
+             | list }}
+
+    # -------------------------------------------------------
+    # Fire all VM creates in parallel using async
+    # -------------------------------------------------------
+    - name: Create VMs (async parallel)
+      nutanix.ncp.ntnx_vms_v2:
+        state: present
+        name: "{{ item }}"
+        cluster:
+          ext_id: "{{ cluster_ext_id }}"
+        num_sockets: "{{ vm_sockets }}"
+        num_cores_per_socket: "{{ vm_cpu }}"
+        memory_size_bytes: "{{ vm_memory_gb | int * 1024 * 1024 * 1024 }}"
+        disks:
+          - disk_address:
+              bus_type: SCSI
+              index: 0
+            backing_info:
+              vm_disk:
+                data_source:
+                  reference:
+                    image_reference:
+                      image_ext_id: "{{ image_ext_id }}"
+          # Data disks loop inline — one per entry in data_disks_gb
+          - "{{ data_disk_specs }}"
+        cd_roms:
+          - disk_address:
+              bus_type: IDE
+              index: 0
+        boot_config:
+          uefi_boot:
+            boot_order:
+              - DISK
+              - CDROM
+              - NETWORK
+        nics:
+          - network_info:
+              nic_type: NORMAL_NIC
+              subnet:
+                ext_id: "{{ subnet_ext_id }}"
+        guest_customization:
+          config:
+            sysprep:
+              install_type: PREPARED
+              sysprep_script:
+                unattend_xml:
+                  value: "{{ lookup('template', 'unattend.xml.j2') }}"
+      loop: "{{ vm_names }}"
+      async: 300      # allow up to 5 min per VM create
+      poll: 0         # fire and don't wait — move to next iteration
+      register: vm_create_jobs
+
+    # -------------------------------------------------------
+    # Wait for all async jobs to complete
+    # -------------------------------------------------------
+    - name: Wait for all VM creates to finish
+      ansible.builtin.async_status:
+        jid: "{{ item.ansible_job_id }}"
+      loop: "{{ vm_create_jobs.results }}"
+      register: vm_create_results
+      until: vm_create_results.finished
+      retries: 60
+      delay: 10
+
+    - name: Fail if any VM creation failed
+      ansible.builtin.fail:
+        msg: "VM creation failed: {{ item.msg }}"
+      loop: "{{ vm_create_results.results }}"
+      when: item.failed
+
+    # -------------------------------------------------------
+    # Collect IPs and register to AAP inventory
+    # -------------------------------------------------------
+    - name: Get VM details
+      nutanix.ncp.ntnx_vms_info_v2:
+        filter: "name eq '{{ item }}'"
+      loop: "{{ vm_names }}"
+      register: vm_details
+
+    - name: Add VMs to AAP inventory
+      ansible.controller.host:
+        name: "{{ item.response[0].name }}"
+        inventory: "{{ aap_inventory_name }}"
+        variables:
+          ansible_host: >-
+            {{ item.response[0].nics[0].networkInfo.ipv4Info
+               .learnedIpAddresses[0].value }}
+          vm_ext_id: "{{ item.response[0].extId }}"
+          workload_id: "{{ workload_id }}"
+        state: present
+      loop: "{{ vm_details.results }}"
