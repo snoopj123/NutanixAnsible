@@ -53,7 +53,7 @@
           {{ range(1, vm_count | int + 1)
              | map('string')
              | map('regex_replace', '^(\d)$', '0\\1')
-             | map('regex_replace', '^(.+)$', vm_prefix + '\\1')
+             | map('regex_replace', '^', vm_prefix)
              | list }}
 
     # -------------------------------------------------------
