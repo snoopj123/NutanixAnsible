@@ -45,6 +45,26 @@
         <LogonCount>1</LogonCount>
         <Username>Administrator</Username>
       </AutoLogon>
+      <FirstLogonCommands>
+        <SynchronousCommand wcm:action="add">
+          <Order>1</Order>
+          <CommandLine>cmd.exe /c mkdir c:\Scripts</CommandLine>
+          <Description>Copy WinRM PowerShell Script</Description>
+          <RequiresUserInput>false</RequiresUserInput>
+        </SynchronousCommand>
+        <SynchronousCommand wcm:action="add">
+          <Order>2</Order>
+          <CommandLine>cmd.exe /c copy \\10.21.159.220\c$\scripts\*.* c:\Scripts\</CommandLine>
+          <Description>Copy WinRM PowerShell Script</Description>
+          <RequiresUserInput>false</RequiresUserInput>
+        </SynchronousCommand>
+        <SynchronousCommand wcm:action="add">
+          <Order>3</Order>
+          <CommandLine>powershell -ExecutionPolicy Bypass -File "C:\Scripts\EnableWinRM.ps1"</CommandLine>
+          <Description>Enable WinRM for Ansible</Description>
+          <RequiresUserInput>false</RequiresUserInput>
+        </SynchronousCommand>
+      </FirstLogonCommands>
       <OOBE>
         <HideEULAPage>true</HideEULAPage>
         <HideLocalAccountScreen>true</HideLocalAccountScreen>
