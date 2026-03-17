@@ -49,12 +49,7 @@
     # -------------------------------------------------------
     - name: Build VM name list
       ansible.builtin.set_fact:
-        vm_names: >-
-          {{ range(1, vm_count | int + 1)
-             | map('string')
-             | map('regex_replace', '^(\d)$', '0\\1')
-             | map('regex_replace', '^', vm_prefix)
-             | list }}
+        vm_names: "{{ query('sequence', 'start=1 end=' ~ (vm_count | int) ~ ' format=' ~ vm_prefix ~ '%02d') }}"
 
     # -------------------------------------------------------
     # Build Data Disk Spec from data_disks_gb
