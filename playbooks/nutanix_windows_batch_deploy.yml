@@ -56,30 +56,9 @@
              | map('regex_replace', '^(.+)$', vm_prefix + '\\1')
              | list }}
 
-    #
+    # -------------------------------------------------------
     # Build Data Disk Spec from data_disks_gb
-    #
-
-    - name: Build data disk spec list from data_disks_gb
-      ansible.builtin.set_fact:
-        data_disk_specs: >-
-          {{ data_disk_specs | default([]) + [{
-            'disk_address': {
-              'bus_type': 'SCSI',
-              'index': idx + 1
-            },
-            'backing_info': {
-              'vm_disk': {
-                'disk_size_bytes': size * 1024 * 1024 * 1024,
-                'storage_container': {
-                 'ext_id': storage_container_uuid
-                }
-              }
-            }
-        }] }}
-      loop: "{{ data_disks_gb }}"
-      loop_control:
-        index_var: idx
+    # -------------------------------------------------------
 
     # -------------------------------------------------------
     # Fire all VM creates in parallel using async
@@ -105,7 +84,6 @@
                     image_reference:
                       image_ext_id: "{{ image_ext_id }}"
           # Data disks loop inline — one per entry in data_disks_gb
-          - "{{ data_disk_specs }}"
         cd_roms:
           - disk_address:
               bus_type: IDE
