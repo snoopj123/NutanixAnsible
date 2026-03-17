@@ -146,7 +146,7 @@
       nutanix.ncp.ntnx_vms_power_actions_v2:
         validate_certs: "{{ validate_certs }}"
         ext_id: "{{ item.response[0].ext_id }}"
-        power_state: ON
+        state: power_on
       loop: "{{ vm_details.results }}"
 
  #   - name: Add VMs to AAP inventory
