@@ -99,7 +99,7 @@
             sysprep:
               install_type: PREPARED
               sysprep_script:
-                unattend_xml:
+                unattendxml:
                   value: "{{ lookup('template', 'unattend.xml.j2') }}"
       loop: "{{ vm_names }}"
       async: 300      # allow up to 5 min per VM create
