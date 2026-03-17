@@ -7,7 +7,7 @@
     nutanix_password: "{{ lookup('env', 'NUTANIX_PASSWORD') }}"
     admin_password: "{{ lookup('env', 'WIN_ADMIN_PASSWORD') }}"
     domain_join_password: "{{ lookup('env', 'WIN_DOMAIN_JOIN_PASSWORD') }}"
-    validate_certs: "{{ lookup('env', 'NUTANIX_VALIDATE_CERTS')}}"
+    validate_certs: false
   
   tasks:
 
