@@ -67,7 +67,7 @@
               'disk_address': {'bus_type': 'SCSI', 'index': i + 1},
               'backing_info': {'vm_disk': {
                 'disk_size_bytes': data_disks_gb[i] | int * 1024 * 1024 * 1024,
-                'storage_container_reference': {'ext_id': storage_container_uuid}
+                'storage_container': {'ext_id': storage_container_uuid}
               }}
           }) -%}
           {%- endfor -%}
