@@ -22,7 +22,7 @@
         <Credentials>
           <Domain>{{ domain_name }}</Domain>
           <Username>{{ domain_join_username }}</Username>
-          <Password>{{ domain_join_password }}</Password>
+          <Password>{{ domain_join_password | e }}</Password>
         </Credentials>
         <JoinDomain>{{ domain_name }}</JoinDomain>
       </Identification>
@@ -38,7 +38,7 @@
                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
       <AutoLogon>
         <Password>
-          <Value>{{ admin_password }}</Value>
+          <Value>{{ admin_password | e }}</Value>
           <PlainText>true</PlainText>
         </Password>
         <Enabled>true</Enabled>
