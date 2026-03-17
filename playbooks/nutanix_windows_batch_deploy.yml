@@ -100,7 +100,7 @@
               install_type: PREPARED
               sysprep_script:
                 unattendxml:
-                  value: "{{ lookup('template', 'unattend.xml.j2') }}"
+                  value: "{{ lookup('template', 'unattend.xml.j2') | b64encode }}"
       loop: "{{ vm_names }}"
       async: 300      # allow up to 5 min per VM create
       poll: 0         # fire and don't wait — move to next iteration
