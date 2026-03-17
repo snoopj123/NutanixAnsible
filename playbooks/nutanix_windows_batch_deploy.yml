@@ -16,6 +16,7 @@
     # -------------------------------------------------------
     - name: Get cluster info
       nutanix.ncp.ntnx_clusters_info_v2:
+        validate_certs: {{ validate_certs }}
         filter: "name eq '{{ cluster_name }}'"
       register: cluster_info
 
@@ -25,6 +26,7 @@
 
     - name: Get subnet info
       nutanix.ncp.ntnx_subnets_info_v2:
+        validate_certs: {{ validate_certs }}
         filter: "name eq '{{ subnet_name }}'"
       register: subnet_info
 
@@ -34,6 +36,7 @@
 
     - name: Get image info
       nutanix.ncp.ntnx_images_info_v2:
+        validate_certs: {{ validate_certs }}
         filter: "name eq '{{ template_name }}'"
       register: image_info
 
@@ -58,6 +61,7 @@
     # -------------------------------------------------------
     - name: Create VMs (async parallel)
       nutanix.ncp.ntnx_vms_v2:
+        validate_certs: {{ validate_certs }}
         state: present
         name: "{{ item }}"
         cluster:
@@ -127,6 +131,7 @@
     # -------------------------------------------------------
     - name: Get VM details
       nutanix.ncp.ntnx_vms_info_v2:
+        validate_certs: {{ validate_certs }}
         filter: "name eq '{{ item }}'"
       loop: "{{ vm_names }}"
       register: vm_details
