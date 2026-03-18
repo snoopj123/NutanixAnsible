@@ -13,6 +13,22 @@
   tasks:
 
     # -------------------------------------------------------
+    # Validate Drive Entries
+    # -------------------------------------------------------
+    - name: Validate drive entries
+      assert:
+        that:
+          - item.split(',') | length >= 3
+          - item.split(',') | length <= 4
+          - item.split(',')[0] | trim | int > 0
+          - item.split(',')[1] | trim | int > 0
+          - item.split(',')[2] | trim | length == 1
+          - item.split(',')[2] | trim | upper is match('[A-Z]')
+          - item.split(',')[3] | trim is match('^/.*') if item.split(',') | length == 4 else true
+        fail_msg: "Invalid drive entry: '{{ item }}' - expected format is 'disk,size,letter[,mount_point]' (e.g. 1,100,C or 2,250,D,/data)"
+      loop: "{{ disk_layout | splitlines() | map('trim') | reject('equalto', '') | list }}"
+    
+    # -------------------------------------------------------
     # Resolve ext_ids up front
     # -------------------------------------------------------
     - name: Get cluster info
