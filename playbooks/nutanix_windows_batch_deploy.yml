@@ -162,15 +162,19 @@
         data:
           vm_list: "{{ vm_list }}"
 
- #   - name: Add VMs to AAP inventory
- #     ansible.controller.host:
- #       name: "{{ item.response[0].name }}"
- #       inventory: "{{ aap_inventory_name }}"
- #       variables:
- #         ansible_host: >-
- #           {{ item.response[0].nics[0].networkInfo.ipv4Info
- #              .learnedIpAddresses[0].value }}
- #         vm_ext_id: "{{ item.response[0].extId }}"
- #         workload_id: "{{ workload_id }}"
- #       state: present
- #     loop: "{{ vm_details.results }}"
+    - name: Add hosts to AAP inventory
+      ansible.controller.host:
+        name: "{{ item }}.{{ domain_name }}"
+        inventory: "{{ aap_inventory_name }}"
+        state: present
+        controller_host: "{{ lookup('env', 'CONTROLLER_HOST') }}"
+        controller_username: "{{ lookup('env', 'CONTROLLER_USERNAME') }}"
+        controller_password: "{{ lookup('env', 'CONTROLLER_PASSWORD') }}"
+        validate_certs: false
+        variables:
+          ansible_host: "{{ item }}.{{ domain_name }}"
+          ansible_connection: winrm
+          ansible_winrm_transport: ntlm
+          ansible_port: 5985
+          ansible_winrm_server_cert_validation: ignore
+      loop: "{{ vm_list }}"
