@@ -22,7 +22,7 @@
           {%- for entry in disk_layout | split('\n') | map('trim') | reject('equalto', '') | list -%}
             {%- set f = entry.split(',') | map('trim') | list -%}
             {%- set disk = {'disk': f[0] | int, 'size_gb': f[1] | int, 'letter': f[2] | upper}
-                           | combine(f | length == 4 | ternary({'mount_point': f[3]}, {})) -%}
+                           | combine((f | length == 4) | ternary({'mount_point': f[3]}, {})) -%}
             {%- set _ = result.append(disk) -%}
           {%- endfor -%}
           {{ result }}
