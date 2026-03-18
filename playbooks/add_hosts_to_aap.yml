@@ -6,7 +6,7 @@
   tasks:
   - name: Add hosts to AAP inventory
     ansible.controller.host:
-      name: "{{ item }}"
+      name: "{{ item }}.{{ domain_name }}"
       inventory: "{{ aap_inventory_name }}"
       state: present
       controller_host: "{{ lookup('env', 'CONTROLLER_HOST') }}"
@@ -14,7 +14,7 @@
       controller_password: "{{ lookup('env', 'CONTROLLER_PASSWORD') }}"
       validate_certs: false
       variables:
-        ansible_host: "{{ item }}"
+        ansible_host: "{{ item }}.{{ domain_name }}"
         ansible_connection: winrm
         ansible_winrm_transport: ntlm
         ansible_port: 5985
