@@ -78,11 +78,11 @@
             {'disk_address': {'bus_type': 'SCSI', 'index': 0},
              'backing_info': {'vm_disk': {'data_source': {'reference': {'image_reference': {'image_ext_id': image_ext_id}}}}}}
           ] -%}
-          {%- for i in range(data_disks_gb | default([]) | length) -%}
+          {%- for disk in parsed_disks -%}
             {%- set _ = disks.append({
-              'disk_address': {'bus_type': 'SCSI', 'index': i + 1},
+              'disk_address': {'bus_type': 'SCSI', 'index': disk.disk},
               'backing_info': {'vm_disk': {
-                'disk_size_bytes': data_disks_gb[i] | int * 1024 * 1024 * 1024,
+                'disk_size_bytes': disk.size_gb * 1024 * 1024 * 1024,
                 'storage_container': {'ext_id': storage_container_uuid}
               }}
           }) -%}
