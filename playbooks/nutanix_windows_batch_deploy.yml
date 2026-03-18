@@ -155,12 +155,7 @@
     # -------------------------------------------------------
     - name: Build vm_list from deployed VMs
       ansible.builtin.set_fact:
-        vm_list: |
-          {% set result = [] %}
-          {% for vm in vm_details.results %}
-          {% set _ = result.append({'name': vm.response[0].name, 'ip': vm.response[0].nics[0].networkInfo.ipv4Info.learnedIpAddresses[0].value}) %}
-          {% endfor %}
-          {{ result }}
+        vm_list: "{{ vm_details.results | map(attribute='response') | map('first') | map(attribute='name') | list }}"
 
     - name: Persist vm_list as workflow stats
       ansible.builtin.set_stats:
