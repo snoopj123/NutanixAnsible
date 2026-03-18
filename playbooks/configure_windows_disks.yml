@@ -53,6 +53,8 @@
 
     # -------------------------------------------------------
     # Create partition, assign drive letter, and format
+    # (skipped when mount_point is defined — those get a
+    #  mount point instead of a formatted volume)
     # -------------------------------------------------------
     - name: Partition, assign drive letter, and format
       ansible.windows.win_powershell:
@@ -69,33 +71,41 @@
 
           $partition = New-Partition -DiskNumber $diskNum -UseMaximumSize -DriveLetter $letter
           Format-Volume -DriveLetter $letter -FileSystem NTFS -NewFileSystemLabel "Data_$letter" -AllocationUnitSize 65536 -Confirm:$false
-      loop: "{{ parsed_disks }}"
+      loop: "{{ parsed_disks | rejectattr('mount_point', 'defined') | list }}"
       loop_control:
         label: "Disk {{ item.disk }} -> {{ item.letter }}:"
 
     # -------------------------------------------------------
-    # Assign mount point path for disks that have one
+    # Partition and assign mount point (no format) for
+    # disks that have a mount_point defined
     # -------------------------------------------------------
-    - name: Assign mount point path
+    - name: Partition and assign mount point
       ansible.windows.win_powershell:
         script: |
+          $letter   = "{{ item.letter }}"
+          $diskNum  = {{ item.disk }}
           $mountPoint = "{{ item.mount_point }}"
 
-          # Create the directory if it doesn't exist
+          # Create the target directory if it doesn't exist
           if (-not (Test-Path $mountPoint)) {
               New-Item -ItemType Directory -Path $mountPoint -Force | Out-Null
           }
 
-          # Skip if mount point is already assigned
-          $existing = Get-Partition -DriveLetter "{{ item.letter }}" |
-                        Get-PartitionSupportedSize -ErrorAction SilentlyContinue
-          $accessPaths = (Get-Partition -DriveLetter "{{ item.letter }}").AccessPaths
-          if ($accessPaths -contains $mountPoint) {
-              Write-Output "Mount point $mountPoint already assigned, skipping."
+          # Skip if partition with this drive letter already exists
+          $existing = Get-Partition -DriveLetter $letter -ErrorAction SilentlyContinue
+          if ($existing) {
+              $accessPaths = $existing.AccessPaths
+              if ($accessPaths -contains $mountPoint) {
+                  Write-Output "Mount point $mountPoint already assigned, skipping."
+                  exit 0
+              }
+              Add-PartitionAccessPath -DiskNumber $diskNum -PartitionNumber $existing.PartitionNumber -AccessPath $mountPoint
               exit 0
           }
 
-          Add-PartitionAccessPath -DriveLetter "{{ item.letter }}" -AccessPath $mountPoint
+          $partition = New-Partition -DiskNumber $diskNum -UseMaximumSize -DriveLetter $letter
+          Format-Volume -Partition $partition -FileSystem NTFS -AllocationUnitSize 65536 -Confirm:$false
+          Add-PartitionAccessPath -DiskNumber $diskNum -PartitionNumber $partition.PartitionNumber -AccessPath $mountPoint
       loop: "{{ parsed_disks | selectattr('mount_point', 'defined') | list }}"
       loop_control:
-        label: "{{ item.letter }}: -> {{ item.mount_point }}"
+        label: "Disk {{ item.disk }} -> {{ item.mount_point }}"
