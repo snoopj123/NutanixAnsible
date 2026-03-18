@@ -1,0 +1,38 @@
+---
+- name: Configure Windows data disks
+  hosts: all
+  gather_facts: false
+
+  tasks:
+
+    # -------------------------------------------------------
+    # Gather raw disk info from the OS
+    # -------------------------------------------------------
+    - name: Get disk information
+      ansible.windows.win_powershell:
+        script: |
+          Get-Disk | Select-Object Number, FriendlyName, OperationalStatus, IsReadOnly, Size |
+            ConvertTo-Json -Depth 3
+      register: disk_info
+
+    - name: Show disk info
+      ansible.builtin.debug:
+        msg: "{{ disk_info.output }}"
+
+    # -------------------------------------------------------
+    # For each parsed_disk entry, bring the disk online
+    # and clear the read-only flag
+    # -------------------------------------------------------
+    - name: Set disk online and writable
+      ansible.windows.win_powershell:
+        script: |
+          $disk = Get-Disk -Number {{ item.disk }}
+          if ($disk.IsOffline) {
+              Set-Disk -Number {{ item.disk }} -IsOffline $false
+          }
+          if ($disk.IsReadOnly) {
+              Set-Disk -Number {{ item.disk }} -IsReadOnly $false
+          }
+      loop: "{{ parsed_disks }}"
+      loop_control:
+        label: "Disk {{ item.disk }} ({{ item.size_gb }}GB)"
