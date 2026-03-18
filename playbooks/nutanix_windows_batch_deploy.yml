@@ -13,21 +13,20 @@
   tasks:
 
     # -------------------------------------------------------
-    # Validate Drive Entries
+    # Parse Drive Entries
     # -------------------------------------------------------
-    - name: Validate drive entries
-      assert:
-        that:
-          - "{{ item.split(',') | length >= 3 }}"
-          - "{{ item.split(',') | length <= 4 }}"
-          - "{{ item.split(',')[0] | trim | int > 0 }}"
-          - "{{ item.split(',')[1] | trim | int > 0 }}"
-          - "{{ item.split(',')[2] | trim | length == 1 }}"
-          - "{{ item.split(',')[2] | trim | upper is match('[A-Z]') }}"
-          - "{{ (item.split(',') | length == 4) | ternary(item.split(',')[3] | trim is match('^/.*'), true) }}"
-        fail_msg: "Invalid drive entry: '{{ item }}' - expected format is 'disk,size,letter[,mount_point]' (e.g. 1,100,C or 2,250,D,/data)"
-      loop: "{{ disk_layout | split('\n') | map('trim') | reject('equalto', '') | list }}"
-    
+    - name: Parse disk layout entries
+      ansible.builtin.set_fact:
+        parsed_disks: >-
+          {%- set result = [] -%}
+          {%- for entry in disk_layout | split('\n') | map('trim') | reject('equalto', '') | list -%}
+            {%- set f = entry.split(',') | map('trim') | list -%}
+            {%- set disk = {'disk': f[0] | int, 'size_gb': f[1] | int, 'letter': f[2] | upper}
+                           | combine(f | length == 4 | ternary({'mount_point': f[3]}, {})) -%}
+            {%- set _ = result.append(disk) -%}
+          {%- endfor -%}
+          {{ result }}
+
     # -------------------------------------------------------
     # Resolve ext_ids up front
     # -------------------------------------------------------
