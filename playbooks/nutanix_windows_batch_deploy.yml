@@ -172,10 +172,11 @@
       ansible.builtin.set_fact:
         vm_list: "{{ vm_details.results | map(attribute='response') | map('first') | map(attribute='name') | list }}"
 
-    - name: Persist vm_list as workflow stats
+    - name: Persist vm_list and parsed_disks as workflow stats
       ansible.builtin.set_stats:
         data:
           vm_list: "{{ vm_list }}"
+          parsed_disks: "{{ parsed_disks }}"
 
     - name: Add hosts to AAP inventory
       ansible.controller.host:
