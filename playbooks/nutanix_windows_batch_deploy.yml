@@ -8,6 +8,7 @@
     admin_password: "{{ lookup('env', 'WIN_ADMIN_PASSWORD') }}"
     domain_join_password: "{{ lookup('env', 'WIN_DOMAIN_JOIN_PASSWORD') }}"
     validate_certs: false
+    vm_list: []
   
   tasks:
 
@@ -148,6 +149,21 @@
         ext_id: "{{ item.response[0].ext_id }}"
         state: power_on
       loop: "{{ vm_details.results }}"
+
+    # -------------------------------------------------------
+    # Build vm_list and persist for downstream playbooks
+    # -------------------------------------------------------
+    - name: Build vm_list from deployed VMs
+      ansible.builtin.set_fact:
+        vm_list: >-
+          {{
+            vm_details.results | json_query('[].{name: response[0].name, ip: response[0].nics[0].networkInfo.ipv4Info.learnedIpAddresses[0].value}')
+          }}
+
+    - name: Persist vm_list as workflow stats
+      ansible.builtin.set_stats:
+        data:
+          vm_list: "{{ vm_list }}"
 
  #   - name: Add VMs to AAP inventory
  #     ansible.controller.host:

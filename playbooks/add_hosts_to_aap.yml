@@ -7,7 +7,7 @@
   - name: Add hosts to AAP inventory
     ansible.controller.host:
       name: "{{ item.name }}"
-      inventory: 4
+      inventory: "{{ aap_inventory_name }}"
       state: present
       controller_host: "{{ lookup('env', 'CONTROLLER_HOST') }}"
       controller_username: "{{ lookup('env', 'CONTROLLER_USERNAME') }}"
