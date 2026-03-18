@@ -36,3 +36,66 @@
       loop: "{{ parsed_disks }}"
       loop_control:
         label: "Disk {{ item.disk }} ({{ item.size_gb }}GB)"
+
+    # -------------------------------------------------------
+    # Initialize disk (GPT) if not already initialized
+    # -------------------------------------------------------
+    - name: Initialize disk
+      ansible.windows.win_powershell:
+        script: |
+          $disk = Get-Disk -Number {{ item.disk }}
+          if ($disk.PartitionStyle -eq 'RAW') {
+              Initialize-Disk -Number {{ item.disk }} -PartitionStyle GPT -PassThru
+          }
+      loop: "{{ parsed_disks }}"
+      loop_control:
+        label: "Disk {{ item.disk }}"
+
+    # -------------------------------------------------------
+    # Create partition, assign drive letter, and format
+    # -------------------------------------------------------
+    - name: Partition, assign drive letter, and format
+      ansible.windows.win_powershell:
+        script: |
+          $letter = "{{ item.letter }}"
+          $diskNum = {{ item.disk }}
+
+          # Skip if partition with this drive letter already exists
+          $existing = Get-Partition -DriveLetter $letter -ErrorAction SilentlyContinue
+          if ($existing) {
+              Write-Output "Partition $letter already exists, skipping."
+              exit 0
+          }
+
+          $partition = New-Partition -DiskNumber $diskNum -UseMaximumSize -DriveLetter $letter
+          Format-Volume -DriveLetter $letter -FileSystem NTFS -NewFileSystemLabel "Data_$letter" -AllocationUnitSize 65536 -Confirm:$false
+      loop: "{{ parsed_disks }}"
+      loop_control:
+        label: "Disk {{ item.disk }} -> {{ item.letter }}:"
+
+    # -------------------------------------------------------
+    # Assign mount point path for disks that have one
+    # -------------------------------------------------------
+    - name: Assign mount point path
+      ansible.windows.win_powershell:
+        script: |
+          $mountPoint = "{{ item.mount_point }}"
+
+          # Create the directory if it doesn't exist
+          if (-not (Test-Path $mountPoint)) {
+              New-Item -ItemType Directory -Path $mountPoint -Force | Out-Null
+          }
+
+          # Skip if mount point is already assigned
+          $existing = Get-Partition -DriveLetter "{{ item.letter }}" |
+                        Get-PartitionSupportedSize -ErrorAction SilentlyContinue
+          $accessPaths = (Get-Partition -DriveLetter "{{ item.letter }}").AccessPaths
+          if ($accessPaths -contains $mountPoint) {
+              Write-Output "Mount point $mountPoint already assigned, skipping."
+              exit 0
+          }
+
+          Add-PartitionAccessPath -DriveLetter "{{ item.letter }}" -AccessPath $mountPoint
+      loop: "{{ parsed_disks | selectattr('mount_point', 'defined') | list }}"
+      loop_control:
+        label: "{{ item.letter }}: -> {{ item.mount_point }}"
