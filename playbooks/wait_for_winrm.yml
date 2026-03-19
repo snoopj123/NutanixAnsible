@@ -1,0 +1,31 @@
+---
+- name: Wait for WinRM to become available
+  hosts: all
+  gather_facts: false
+
+  tasks:
+
+    # -------------------------------------------------------
+    # Step 1 — TCP port check from the Ansible controller.
+    # Confirms the host is up and WinRM listener is open
+    # before attempting authentication.
+    # -------------------------------------------------------
+    - name: Wait for WinRM port to be reachable
+      ansible.builtin.wait_for:
+        host: "{{ ansible_host }}"
+        port: "{{ ansible_port | default(5985) }}"
+        delay: 15
+        sleep: 10
+        timeout: 600
+      delegate_to: localhost
+
+    # -------------------------------------------------------
+    # Step 2 — Full connection test (auth + WinRM handshake).
+    # Sysprep / winrm quickconfig can still be running even
+    # after the port opens, so retry here as well.
+    # -------------------------------------------------------
+    - name: Wait for WinRM connection to succeed
+      ansible.builtin.wait_for_connection:
+        delay: 10
+        sleep: 15
+        timeout: 600
