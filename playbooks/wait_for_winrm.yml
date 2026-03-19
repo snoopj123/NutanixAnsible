@@ -12,8 +12,8 @@
     # -------------------------------------------------------
     - name: Wait for WinRM port to be reachable
       ansible.builtin.wait_for:
-        host: "{{ ansible_host }}"
-        port: "{{ ansible_port | default(5985) }}"
+        host: "{{ hostvars[inventory_hostname]['ansible_host'] | default(inventory_hostname) }}"
+        port: "{{ hostvars[inventory_hostname]['ansible_port'] | default(5985) }}"
         delay: 15
         sleep: 10
         timeout: 600
