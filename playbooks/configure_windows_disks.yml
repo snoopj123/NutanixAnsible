@@ -14,6 +14,9 @@
           Get-Disk | Select-Object Number, FriendlyName, OperationalStatus, IsReadOnly, Size |
             ConvertTo-Json -Depth 3
       register: disk_info
+      until: disk_info is success
+      retries: 3
+      delay: 10
 
     - name: Show disk info
       ansible.builtin.debug:
@@ -36,6 +39,10 @@
       loop: "{{ parsed_disks }}"
       loop_control:
         label: "Disk {{ item.disk }} ({{ item.size_gb }}GB)"
+      register: disk_online_result
+      until: disk_online_result is success
+      retries: 3
+      delay: 10
 
     # -------------------------------------------------------
     # Initialize disk (GPT) if not already initialized
@@ -50,6 +57,10 @@
       loop: "{{ parsed_disks }}"
       loop_control:
         label: "Disk {{ item.disk }}"
+      register: disk_init_result
+      until: disk_init_result is success
+      retries: 3
+      delay: 10
 
     # -------------------------------------------------------
     # Create partition, assign drive letter, and format
@@ -74,6 +85,10 @@
       loop: "{{ parsed_disks | rejectattr('mount_point', 'defined') | list }}"
       loop_control:
         label: "Disk {{ item.disk }} -> {{ item.letter }}:"
+      register: partition_letter_result
+      until: partition_letter_result is success
+      retries: 3
+      delay: 10
 
     # -------------------------------------------------------
     # Partition and assign mount point (no format) for
@@ -106,6 +121,10 @@
       loop: "{{ parsed_disks | selectattr('mount_point', 'defined') | list }}"
       loop_control:
         label: "Disk {{ item.disk }} -> {{ item.mount_point }}"
+      register: partition_mount_result
+      until: partition_mount_result is success
+      retries: 3
+      delay: 10
 
     # -------------------------------------------------------
     # Create directories from AAP textarea (one path per line)
@@ -118,3 +137,7 @@
       loop_control:
         label: "{{ item }}"
       when: directories_to_create is defined and directories_to_create | length > 0
+      register: dir_create_result
+      until: dir_create_result is success
+      retries: 3
+      delay: 10
