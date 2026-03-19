@@ -11,3 +11,7 @@
         sleep: 10
         delay: 10
         timeout: 600
+
+    - name: Allow WinRM to stabilize
+      ansible.builtin.pause:
+        seconds: 180
