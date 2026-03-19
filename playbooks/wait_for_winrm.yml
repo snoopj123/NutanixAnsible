@@ -1,37 +1,14 @@
 ---
-# -------------------------------------------------------
-# Play 1 — TCP port poll, runs entirely on the controller.
-# Avoids WinRM entirely; iterates over all target hosts
-# and checks that port 5985 is accepting connections.
-# -------------------------------------------------------
-- name: Poll WinRM port from controller
-  hosts: localhost
-  connection: local
-  gather_facts: false
-
-  tasks:
-    - name: Wait for WinRM port to be reachable on each host
-      ansible.builtin.wait_for:
-        host: "{{ hostvars[item]['ansible_host'] | default(item) }}"
-        port: "{{ hostvars[item]['ansible_port'] | default(5985) }}"
-        delay: 15
-        sleep: 10
-        timeout: 600
-        state: started
-      loop: "{{ groups['all'] }}"
-
-# -------------------------------------------------------
-# Play 2 — Full WinRM handshake test.
-# Sysprep / winrm quickconfig may still be finishing even
-# after the port opens, so retry the full auth handshake.
-# -------------------------------------------------------
-- name: Wait for WinRM connection to succeed
+- name: Wait for WinRM to become available
   hosts: all
   gather_facts: false
 
   tasks:
-    - name: Wait for WinRM connection to succeed
-      ansible.builtin.wait_for_connection:
-        delay: 10
-        sleep: 15
-        timeout: 600
+
+    - name: Poll WinRM until connection succeeds
+      ansible.windows.win_ping:
+      register: winrm_test
+      until: winrm_test is success
+      retries: 60
+      delay: 10
+      ignore_unreachable: true
