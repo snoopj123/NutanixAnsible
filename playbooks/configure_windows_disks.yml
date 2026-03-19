@@ -17,6 +17,7 @@
       until: disk_info is success
       retries: 3
       delay: 10
+      ignore_unreachable: true
 
     - name: Show disk info
       ansible.builtin.debug:
@@ -43,6 +44,7 @@
       until: disk_online_result is success
       retries: 3
       delay: 10
+      ignore_unreachable: true
 
     # -------------------------------------------------------
     # Initialize disk (GPT) if not already initialized
@@ -61,6 +63,7 @@
       until: disk_init_result is success
       retries: 3
       delay: 10
+      ignore_unreachable: true
 
     # -------------------------------------------------------
     # Create partition, assign drive letter, and format
@@ -89,6 +92,7 @@
       until: partition_letter_result is success
       retries: 3
       delay: 10
+      ignore_unreachable: true
 
     # -------------------------------------------------------
     # Partition and assign mount point (no format) for
@@ -125,6 +129,7 @@
       until: partition_mount_result is success
       retries: 3
       delay: 10
+      ignore_unreachable: true
 
     # -------------------------------------------------------
     # Create directories from AAP textarea (one path per line)
@@ -141,3 +146,4 @@
       until: dir_create_result is success
       retries: 3
       delay: 10
+      ignore_unreachable: true
