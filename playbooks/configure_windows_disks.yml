@@ -106,3 +106,15 @@
       loop: "{{ parsed_disks | selectattr('mount_point', 'defined') | list }}"
       loop_control:
         label: "Disk {{ item.disk }} -> {{ item.mount_point }}"
+
+    # -------------------------------------------------------
+    # Create directories from AAP textarea (one path per line)
+    # -------------------------------------------------------
+    - name: Create directories
+      ansible.windows.win_file:
+        path: "{{ item }}"
+        state: directory
+      loop: "{{ directories_to_create.splitlines() | select('ne', '') | list }}"
+      loop_control:
+        label: "{{ item }}"
+      when: directories_to_create is defined and directories_to_create | length > 0
