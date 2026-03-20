@@ -195,16 +195,3 @@
           ansible_winrm_server_cert_validation: ignore
           sql_version: "{{ sql_version }}"
       loop: "{{ vm_list }}"
-
-    # -------------------------------------------------------
-    # Sync constructed inventory so new hosts are visible
-    # -------------------------------------------------------
-    - name: Sync constructed inventory
-      ansible.controller.inventory_source_update:
-        name: "Constructed SQL Server Inventory"
-        inventory: 42
-        wait: true
-        controller_host: "{{ lookup('env', 'CONTROLLER_HOST') }}"
-        controller_username: "{{ lookup('env', 'CONTROLLER_USERNAME') }}"
-        controller_password: "{{ lookup('env', 'CONTROLLER_PASSWORD') }}"
-        validate_certs: false
