@@ -7,8 +7,8 @@
 
     - name: Sync constructed inventory
       ansible.controller.inventory_source_update:
-        name: "{{ aap_constructed_inventory_source }}"
-        inventory: "{{ aap_constructed_inventory_name }}"
+        name: "Microsoft SQL Servers"
+        inventory: "SQL Constructed Inventory"
         wait: true
         controller_host: "{{ lookup('env', 'CONTROLLER_HOST') }}"
         controller_username: "{{ lookup('env', 'CONTROLLER_USERNAME') }}"
