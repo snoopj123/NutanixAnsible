@@ -193,5 +193,5 @@
           ansible_winrm_transport: ntlm
           ansible_port: 5985
           ansible_winrm_server_cert_validation: ignore
-          mssql_version: "{{ sql_version }}"
+          sql_version: "{{ sql_version }}"
       loop: "{{ vm_list }}"
