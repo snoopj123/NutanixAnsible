@@ -201,8 +201,8 @@
     # -------------------------------------------------------
     - name: Sync constructed inventory
       ansible.controller.inventory_source_update:
-        name: "Microsoft SQL Servers"
-        inventory: "Constructed SQL Inventory Source"
+        name: "Constructed SQL Inventory Source"
+        inventory: "Microsoft SQL Servers"
         wait: true
         controller_host: "{{ lookup('env', 'CONTROLLER_HOST') }}"
         controller_username: "{{ lookup('env', 'CONTROLLER_USERNAME') }}"
