@@ -195,10 +195,3 @@
           ansible_winrm_server_cert_validation: ignore
           sql_version: "{{ sql_version }}"
       loop: "{{ vm_list }}"
-
-    - name: Sync constructed inventory source
-      ansible.controller.inventory_source_update:
-        name: "Constructed SQL Inventory Source"
-        inventory: "Microsoft SQL Servers Constructed"
-        organization: "Default"
-        wait: true
