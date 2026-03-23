@@ -178,10 +178,14 @@
           vm_list: "{{ vm_list }}"
           parsed_disks: "{{ parsed_disks }}"
 
+    - name: Create timestamp
+      set_fact:
+        timestamp: "{{ now(fmt='%s') }}"
+
     - name: Add hosts to AAP inventory
       ansible.controller.host:
         name: "{{ item }}.{{ domain_name }}"
-        inventory: "{{ aap_inventory_name }}"
+        inventory: "{{ aap_inventory_name }}-{{ timestamp }}"
         state: present
         controller_host: "{{ lookup('env', 'CONTROLLER_HOST') }}"
         controller_username: "{{ lookup('env', 'CONTROLLER_USERNAME') }}"
@@ -195,13 +199,3 @@
           ansible_winrm_server_cert_validation: ignore
           sql_version: "{{ sql_version }}"
       loop: "{{ vm_list }}"
-
-    - name: Sync constructed inventory
-      ansible.controller.inventory_source_update:
-        name: "Auto-created source for: SQL Constructed Inventory"
-        inventory: "SQL Constructed Inventory"
-        wait: true
-        controller_host: "{{ lookup('env', 'CONTROLLER_HOST') }}"
-        controller_username: "{{ lookup('env', 'CONTROLLER_USERNAME') }}"
-        controller_password: "{{ lookup('env', 'CONTROLLER_PASSWORD') }}"
-        validate_certs: false
