@@ -182,6 +182,16 @@
       set_fact:
         timestamp: "{{ now(fmt='%s') }}"
 
+    - name: Create Inventory for Batch
+      ansible.controller.inventory:
+        name: "{{ aap_inventory_name }}-{{ timestamp }}"
+        organization: "Default"
+        state: present
+        controller_host: "{{ lookup('env', 'CONTROLLER_HOST') }}"
+        controller_username: "{{ lookup('env', 'CONTROLLER_USERNAME') }}"
+        controller_password: "{{ lookup('env', 'CONTROLLER_PASSWORD') }}"
+        validate_certs: false
+
     - name: Add hosts to AAP inventory
       ansible.controller.host:
         name: "{{ item }}.{{ domain_name }}"
