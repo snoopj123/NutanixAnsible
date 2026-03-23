@@ -14,3 +14,11 @@
         controller_username: "{{ lookup('env', 'CONTROLLER_USERNAME') }}"
         controller_password: "{{ lookup('env', 'CONTROLLER_PASSWORD') }}"
         validate_certs: false
+
+    - name: Create timestamp
+      set_fact:
+        timestamp: "{{ ansible_date_time.epoch }}"
+    
+    - name: Print timestamp
+      ansible.builtin.debug:
+        msg: "Timestamp was {{ timestamp }}"
