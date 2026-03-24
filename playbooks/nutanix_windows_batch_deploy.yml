@@ -219,3 +219,4 @@
         controller_username: "{{ lookup('env', 'CONTROLLER_USERNAME') }}"
         controller_password: "{{ lookup('env', 'CONTROLLER_PASSWORD') }}"
         validate_certs: false
+      register: winrm_deployment_job
