@@ -1,0 +1,24 @@
+# vars/common.yml
+# Shared defaults across all SQL Server versions.
+# Sensitive values are injected at runtime from the AAP custom credential
+# via environment variables — never hardcoded here.
+
+sql_features:          'SQLENGINE'
+sql_sysadmin_accounts: 'BUILTIN\Administrators'
+sql_svc_account:       'NT AUTHORITY\NETWORK SERVICE'
+sql_agt_account:       'NT AUTHORITY\NETWORK SERVICE'
+sql_collation:         'SQL_Latin1_General_CP1_CI_AS'
+sql_tcp_enabled:       1
+sql_np_enabled:        0
+sql_data_dir:          'D:\SQLData'
+sql_log_dir:           'D:\SQLLogs'
+sql_backup_dir:        'D:\SQLBackups'
+sql_script_dest:       'C:\Scripts\Install-SQLServer.ps1'
+sql_install_log:       'C:\Logs\SQLInstall.log'
+
+# Injected at runtime from AAP custom credential — never hardcoded
+sql_sa_password:    "{{ lookup('env', 'SQL_SA_PASSWORD') }}"
+sql_instance_name:  "{{ lookup('env', 'SQL_INSTANCE_NAME') | default('MSSQLSERVER', true) }}"
+sql_security_mode:  "{{ lookup('env', 'SQL_SECURITY_MODE') | default('Windows', true) }}"
+sql_share_user:     "{{ lookup('env', 'SQL_SHARE_USER')     | default('', true) }}"
+sql_share_password: "{{ lookup('env', 'SQL_SHARE_PASSWORD') | default('', true) }}"

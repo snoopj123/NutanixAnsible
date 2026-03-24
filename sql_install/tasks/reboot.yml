@@ -1,0 +1,11 @@
+---
+# tasks/reboot.yml
+# Conditionally reboots the target server if the SQL Server installer
+# returned exit code 3010 (success, but reboot required).
+
+- name: Reboot server if installer requested it
+  ansible.windows.win_reboot:
+    reboot_timeout:    600
+    post_reboot_delay: 30
+    msg: "Rebooting after SQL Server {{ sql_version_label }} installation"
+  when: sql_reboot_required | default(false)

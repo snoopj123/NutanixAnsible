@@ -1,0 +1,16 @@
+# vars/sql2025.yml
+# SQL Server 2025-specific variables.
+# Overrides and extends common.yml for this version.
+
+sql_version:        '2025'
+sql_version_label:  'SQL Server 2025'
+sql_iso_path:       '\\fileserver\sqlmedia\2025\SQLServer2025.iso'
+sql_iso_filename:   'SQLServer2025.iso'
+sql_setup_log_path: 'C:\Program Files\Microsoft SQL Server\170\Setup Bootstrap\Log'
+
+# License acceptance flags for SQL 2025 (includes Python 3 and R Open)
+sql_extra_args:     '/IACCEPTSQLSERVERLICENSETERMS /IACCEPTPYTHON3LICENSETERMS /IACCEPTROPENLICENSETERMS'
+
+# Feature availability flags
+sql_accelerated_database_recovery: true
+sql_ledger_support:                true

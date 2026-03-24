@@ -1,0 +1,43 @@
+---
+# tasks/install.yml
+# Executes the PowerShell silent install script on the target server,
+# captures output, fetches the install log, and sets the reboot fact.
+
+- name: Run SQL Server {{ sql_version_label }} silent install
+  ansible.windows.win_powershell:
+    script: |
+      & "{{ sql_script_dest }}" `
+        -IsoPath             "{{ sql_iso_path }}" `
+        -ShareUser           "{{ sql_share_user }}" `
+        -SharePassword       "{{ sql_share_password }}" `
+        -InstanceName        "{{ sql_instance_name }}" `
+        -Features            "{{ sql_features }}" `
+        -SqlSysAdminAccounts "{{ sql_sysadmin_accounts }}" `
+        -SqlSvcAccount       "{{ sql_svc_account }}" `
+        -AgtSvcAccount       "{{ sql_agt_account }}" `
+        -SecurityMode        "{{ sql_security_mode }}" `
+        -SaPwd               "{{ sql_sa_password }}" `
+        -SqlCollation        "{{ sql_collation }}" `
+        -TcpEnabled          {{ sql_tcp_enabled }} `
+        -NpEnabled           {{ sql_np_enabled }} `
+        -InstallDataDir      "{{ sql_data_dir }}" `
+        -InstallLogDir       "{{ sql_log_dir }}" `
+        -InstallBackupDir    "{{ sql_backup_dir }}" `
+        -LogPath             "{{ sql_install_log }}"
+  register: sql_install_result
+  failed_when: sql_install_result.rc not in [0, 3010]
+  no_log: true  # Prevents task args (including passwords) from appearing in logs
+
+- name: Show install output
+  ansible.builtin.debug:
+    var: sql_install_result.output
+
+- name: Retrieve install log from target
+  ansible.windows.win_fetch:
+    src: "{{ sql_install_log }}"
+    dest: "logs/{{ inventory_hostname }}-SQL{{ sql_version }}-Install.log"
+    flat: true
+
+- name: Set reboot required fact
+  ansible.builtin.set_fact:
+    sql_reboot_required: "{{ sql_install_result.rc == 3010 }}"
