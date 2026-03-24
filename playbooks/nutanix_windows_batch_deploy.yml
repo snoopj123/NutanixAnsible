@@ -209,3 +209,13 @@
           ansible_winrm_server_cert_validation: ignore
           sql_version: "{{ sql_version }}"
       loop: "{{ vm_list }}"
+
+    - name: Launch Wait for WinRM on SQL Servers template
+      ansible.controller.job_launch:
+        job_template: "Wait for WinRM on SQL Servers"
+        inventory: "{{ aap_inventory_name }}-{{ timestamp }}"
+        wait: true
+        controller_host: "{{ lookup('env', 'CONTROLLER_HOST') }}"
+        controller_username: "{{ lookup('env', 'CONTROLLER_USERNAME') }}"
+        controller_password: "{{ lookup('env', 'CONTROLLER_PASSWORD') }}"
+        validate_certs: false
