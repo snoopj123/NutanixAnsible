@@ -4,7 +4,7 @@
 # Pass sql_version as a Survey variable: 2019 | 2022 | 2025
 
 - name: SQL Server Silent Install — Master Orchestrator
-  hosts: sql_servers
+  hosts: all
   gather_facts: true
 
   pre_tasks:
