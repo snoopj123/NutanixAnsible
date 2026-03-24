@@ -3,18 +3,6 @@
 # Pre-installation checks: disk space, ISO availability, directory creation,
 # and PowerShell script deployment to the target server.
 
-- name: Check available disk space on D drive
-  ansible.windows.win_powershell:
-    script: |
-      $drive = Get-PSDrive D -ErrorAction SilentlyContinue
-      if (-not $drive) { Write-Output "NO_D_DRIVE"; exit 1 }
-      $freeGB = [math]::Round($drive.Free / 1GB, 2)
-      Write-Output "FREE_GB=$freeGB"
-      if ($freeGB -lt 20) { exit 2 }
-      exit 0
-  register: disk_check
-  failed_when: disk_check.rc not in [0]
-
 - name: Verify ISO exists on share/path
   ansible.windows.win_stat:
     path: "{{ sql_iso_path }}"
