@@ -227,6 +227,11 @@
         inventory: "{{ aap_inventory_name }}-{{ timestamp }}"
         extra_vars:
           parsed_disks: "{{ parsed_disks }}"
+          sql_userdb_dir: "{{ sql_userdb_dir }}"
+          sql_userdb_log_dir: "{{ sql_userdb_log_dir }}"
+          sql_temp_dir: "{{ sql_temp_dir }}"
+          sql_tempdb_log_dir: "{{ sql_tempdb_log_dir }}"
+          sql_data_dir: "{{ sql_data_dir }}"
         wait: true
         controller_host: "{{ lookup('env', 'CONTROLLER_HOST') }}"
         controller_username: "{{ lookup('env', 'CONTROLLER_USERNAME') }}"
