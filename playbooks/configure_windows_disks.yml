@@ -132,18 +132,27 @@
       ignore_unreachable: true
 
     # -------------------------------------------------------
-    # Create directories from AAP textarea (one path per line)
+    # Create directories from based variables
     # -------------------------------------------------------
     - name: Create directories
-      ansible.windows.win_file:
+      set_fact:
+        directories_to_create: >-
+          {{
+            [sql_userdb_dir, sql_userdb_log_dir, sql_temp_dir, sql_tempdb_log_dir, sql_data_dir]
+            | map('trim')
+            | reject('equalto', '')
+            | list
+          }}
+
+    - name: Check if directory exists
+      ansible.windows.win_stat:
         path: "{{ item }}"
+      register: dir_check
+      loop: "{{ directories_to_create }}"
+
+    - name: Create Directory if it does not exist
+      ansible.windows.win_file:
+        path: "{{ item.item }}"
         state: directory
-      loop: "{{ directories_to_create.splitlines() | select('ne', '') | list }}"
-      loop_control:
-        label: "{{ item }}"
-      when: directories_to_create is defined and directories_to_create | length > 0
-      register: dir_create_result
-      until: dir_create_result is success
-      retries: 3
-      delay: 10
-      ignore_unreachable: true
+      loop: "{{ dir_check.results }}"
+      when: not item.stat.exists
