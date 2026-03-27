@@ -19,7 +19,6 @@
     state: directory
   loop:
     - C:\Scripts
-    - C:\Logs
     - "{{ sql_data_dir }}"
     - "{{ sql_log_dir }}"
     - "{{ sql_backup_dir }}"
