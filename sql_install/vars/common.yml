@@ -14,11 +14,9 @@ sql_data_dir:          'D:\SQLData'
 sql_log_dir:           'D:\SQLLogs'
 sql_backup_dir:        'D:\SQLBackups'
 sql_script_dest:       'C:\Scripts\Install-SQLServer.ps1'
-sql_install_log:       'C:\Logs\SQLInstall.log'
+sql_install_log:       'C:\Scripts\SQLInstall.log'
 
 # Injected at runtime from AAP custom credential — never hardcoded
 sql_sa_password:    "{{ lookup('env', 'SQL_SA_PASSWORD') }}"
 sql_instance_name:  "{{ lookup('env', 'SQL_INSTANCE_NAME') | default('MSSQLSERVER', true) }}"
 sql_security_mode:  "{{ lookup('env', 'SQL_SECURITY_MODE') | default('Windows', true) }}"
-sql_share_user:     "{{ lookup('env', 'SQL_SHARE_USER')     | default('', true) }}"
-sql_share_password: "{{ lookup('env', 'SQL_SHARE_PASSWORD') | default('', true) }}"
