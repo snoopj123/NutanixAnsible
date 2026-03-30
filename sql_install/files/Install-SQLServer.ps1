@@ -70,7 +70,7 @@ param(
     [string] $LogPath               = "C:\Logs\SQLInstall.log"
 )
 
-# ── Logging ───────────────────────────────────────────────────────────────────
+# ---- Logging ----
 function Write-Log {
     param(
         [string] $Message,
@@ -82,7 +82,7 @@ function Write-Log {
     Add-Content -Path $LogPath -Value $entry -Force
 }
 
-# ── Ensure log directory exists ───────────────────────────────────────────────
+# ---- Ensure log directory exists ----
 New-Item -ItemType Directory -Path (Split-Path $LogPath) -Force | Out-Null
 
 Write-Log "===== SQL Server Silent Install Started ====="
@@ -91,7 +91,7 @@ Write-Log "Features        : $Features"
 Write-Log "Security Mode   : $SecurityMode"
 Write-Log "ISO/Source Path : $IsoPath"
 
-# ── Validate source path exists ───────────────────────────────────────────────
+# ---- Validate source path exists ----
 if (-not (Test-Path $IsoPath -ErrorAction SilentlyContinue)) {
 
     # If UNC, attempt to map share first before failing
@@ -101,7 +101,7 @@ if (-not (Test-Path $IsoPath -ErrorAction SilentlyContinue)) {
     }
 }
 
-# ── Map network drive for UNC paths ──────────────────────────────────────────
+# ---- Map network drive for UNC paths ----
 $MappedDriveLetter = $null
 
 if ($IsoPath -like "\\*") {
@@ -140,14 +140,14 @@ if ($IsoPath -like "\\*") {
     Write-Log "Resolved IsoPath: $IsoPath"
 }
 
-# ── Validate resolved path ────────────────────────────────────────────────────
+# ---- Validate resolved path ----
 if (-not (Test-Path $IsoPath)) {
     Write-Log "ERROR: IsoPath '$IsoPath' not found after share mapping." "ERROR"
     if ($MappedDriveLetter) { net use $MappedDriveLetter /delete /yes | Out-Null }
     exit 1
 }
 
-# ── Mount ISO or locate setup.exe directly ────────────────────────────────────
+# ---- Mount ISO or locate setup.exe directly ----
 $SetupExe    = $null
 $MountedDisk = $null
 
@@ -174,7 +174,7 @@ if (-not (Test-Path $SetupExe)) {
 
 Write-Log "Using setup.exe: $SetupExe"
 
-# ── Build argument list ───────────────────────────────────────────────────────
+# ---- Build argument list ----
 $setupArgs = @(
     "/Q"
     "/ACTION=Install"
@@ -211,7 +211,7 @@ if ($SecurityMode -eq "SQL") {
 
 Write-Log "Launching SQL Server setup (this may take 10-20 minutes)..."
 
-# ── Execute setup ─────────────────────────────────────────────────────────────
+# ---- Execute setup ----
 $proc = Start-Process -FilePath $SetupExe `
     -ArgumentList $setupArgs `
     -Wait `
@@ -221,19 +221,19 @@ $proc = Start-Process -FilePath $SetupExe `
 $exitCode = $proc.ExitCode
 Write-Log "Setup process exited with code: $exitCode"
 
-# ── Dismount ISO ──────────────────────────────────────────────────────────────
+# ---- Dismount ISO ----
 if ($MountedDisk) {
     Dismount-DiskImage -ImagePath $MountedDisk | Out-Null
     Write-Log "ISO dismounted."
 }
 
-# ── Unmap network drive ───────────────────────────────────────────────────────
+# ---- Unmap network drive ----
 if ($MappedDriveLetter) {
     net use $MappedDriveLetter /delete /yes | Out-Null
     Write-Log "Network drive $MappedDriveLetter unmapped."
 }
 
-# ── Parse exit code ───────────────────────────────────────────────────────────
+# ---- Parse exit code ----
 switch ($exitCode) {
     0    { Write-Log "SUCCESS: SQL Server installed successfully." }
     3010 { Write-Log "SUCCESS: SQL Server installed — reboot required (exit code 3010)." "WARN" }
@@ -244,7 +244,7 @@ switch ($exitCode) {
     }
 }
 
-# ── Post-install service validation ──────────────────────────────────────────
+# ---- Post-install service validation ----
 Write-Log "Running post-install service validation..."
 
 $svcName = if ($InstanceName -eq "MSSQLSERVER") {
@@ -258,7 +258,7 @@ $svc = Get-Service -Name $svcName -ErrorAction SilentlyContinue
 if ($svc -and $svc.Status -eq "Running") {
     Write-Log "SQL Server service '$svcName' is Running. Install validated successfully."
 } else {
-    Write-Log "WARNING: Service '$svcName' not found or not running. Manual verification advised." "WARN"
+    Write-Log "WARNING: Service '$svcName' not found or not running. Manual verification advised."
 }
 
 Write-Log "===== SQL Server Silent Install Completed ====="
