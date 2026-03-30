@@ -37,8 +37,6 @@
           - "Security Mode  : {{ sql_security_mode }}"
           - "ISO Path       : {{ sql_iso_path }}"
           - "Data Dir       : {{ sql_data_dir }}"
-          - "Log Dir        : {{ sql_log_dir }}"
-          - "Backup Dir     : {{ sql_backup_dir }}"
 
   tasks:
 
