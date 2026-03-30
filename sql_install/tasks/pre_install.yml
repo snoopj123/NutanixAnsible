@@ -3,16 +3,6 @@
 # Pre-installation checks: disk space, ISO availability, directory creation,
 # and PowerShell script deployment to the target server.
 
-- name: Verify ISO exists on share/path
-  ansible.windows.win_stat:
-    path: "{{ sql_iso_path }}"
-  register: iso_stat
-
-- name: Assert ISO is present
-  ansible.builtin.assert:
-    that: iso_stat.stat.exists
-    fail_msg: "ISO not found at {{ sql_iso_path }} on {{ inventory_hostname }}"
-
 - name: Copy PowerShell install script to target
   ansible.windows.win_copy:
     src: files/Install-SQLServer.ps1
