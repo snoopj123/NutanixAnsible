@@ -34,12 +34,6 @@
   ansible.builtin.debug:
     var: sql_install_result.output
 
-- name: Retrieve install log from target
-  ansible.windows.win_fetch:
-    src: "{{ sql_install_log }}"
-    dest: "logs/{{ inventory_hostname }}-SQL{{ sql_version }}-Install.log"
-    flat: true
-
 - name: Set reboot required fact
   ansible.builtin.set_fact:
     sql_reboot_required: "{{ sql_install_result.rc == 3010 }}"
