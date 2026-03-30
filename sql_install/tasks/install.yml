@@ -8,8 +8,6 @@
     script: |
       & "{{ sql_script_dest }}" `
         -IsoPath             "{{ sql_iso_path }}" `
-        -ShareUser           "{{ sql_share_user }}" `
-        -SharePassword       "{{ sql_share_password }}" `
         -InstanceName        "{{ sql_instance_name }}" `
         -Features            "{{ sql_features }}" `
         -SqlSysAdminAccounts "{{ sql_sysadmin_accounts }}" `
