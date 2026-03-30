@@ -177,7 +177,6 @@ Write-Log "Using setup.exe: $SetupExe"
 # ---- Build argument list ----
 $setupArgs = @(
     "/Q"
-    "/EDITION=Developer"
     "/INDICATEPROGRESS"
     "/ACTION=Install"
     "/FEATURES=$Features"
