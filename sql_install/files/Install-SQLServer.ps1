@@ -256,9 +256,9 @@ $svcName = if ($InstanceName -eq "MSSQLSERVER") {
 $svc = Get-Service -Name $svcName -ErrorAction SilentlyContinue
 
 if ($svc -and $svc.Status -eq "Running") {
-    Write-Log "SQL Server service '$svcName' is Running. Install validated successfully."
+    Write-Log "SQL Server service is Running. Install validated successfully."
 } else {
-    Write-Log "WARNING: Service '$svcName' not found or not running. Manual verification advised."
+    Write-Log "WARNING: Service not found or not running. Manual verification advised."
 }
 
 Write-Log "===== SQL Server Silent Install Completed ====="
