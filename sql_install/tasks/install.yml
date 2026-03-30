@@ -21,8 +21,10 @@
         -TcpEnabled          {{ sql_tcp_enabled }} `
         -NpEnabled           {{ sql_np_enabled }} `
         -InstallDataDir      "{{ sql_data_dir }}" `
-        -InstallLogDir       "{{ sql_log_dir }}" `
-        -InstallBackupDir    "{{ sql_backup_dir }}" `
+        -InstallUserDBDir    "{{ sql_userdb_dir }}" `
+        -InstallUserDBLogDir "{{ sql_userdb_log_dir }}" `
+        -InstallTempDBDir    "{{ sql_tempdb_dir }}" `
+        -InstallTempDBLogDir "{{ sql_tempdb_log_dir }}" `
         -LogPath             "{{ sql_install_log }}"
   register: sql_install_result
   failed_when: sql_install_result.rc not in [0, 3010]

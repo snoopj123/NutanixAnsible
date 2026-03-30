@@ -61,8 +61,12 @@ param(
     [int]    $TcpEnabled            = 1,
     [int]    $NpEnabled             = 0,
     [string] $InstallDataDir        = "D:\SQLData",
-    [string] $InstallLogDir         = "D:\SQLLogs",
-    [string] $InstallBackupDir      = "D:\SQLBackups",
+    [string] $InstallUserDBDir      = "",
+    [string] $InstallUserDBLogDir   = "",
+    [string] $InstallTempDBDir      = "",
+    [string] $InstallTempDBLogDir   = "",
+    [string] $InstallLogDir         = "",
+    [string] $InstallBackupDir      = "",
     [string] $LogPath               = "C:\Logs\SQLInstall.log"
 )
 
@@ -170,14 +174,6 @@ if (-not (Test-Path $SetupExe)) {
 
 Write-Log "Using setup.exe: $SetupExe"
 
-# ── Create data / log / backup directories ────────────────────────────────────
-foreach ($dir in @($InstallDataDir, $InstallLogDir, $InstallBackupDir)) {
-    if (-not (Test-Path $dir)) {
-        New-Item -ItemType Directory -Path $dir -Force | Out-Null
-        Write-Log "Created directory: $dir"
-    }
-}
-
 # ── Build argument list ───────────────────────────────────────────────────────
 $setupArgs = @(
     "/Q"
@@ -188,9 +184,11 @@ $setupArgs = @(
     "/AGTSVCACCOUNT=$AgtSvcAccount"
     "/SQLSYSADMINACCOUNTS=$SqlSysAdminAccounts"
     "/SQLCOLLATION=$SqlCollation"
-    "/SQLUSERDBDIR=$InstallDataDir"
-    "/SQLUSERDBLOGDIR=$InstallLogDir"
-    "/SQLBACKUPDIR=$InstallBackupDir"
+    "/INSTALLSQLDATADIR=$InstallDataDir"
+    "/SQLUSERDBDIR=$InstallUserDBDir"
+    "/SQLUSERDBLOGDIR=$InstallUserDBLogDir"
+    "/SQLTEMPDBDIR=$InstallTempDBDir"
+    "/SQLTEMPDBLOGDIR=$InstallTempDBLogDir"
     "/TCPENABLED=$TcpEnabled"
     "/NPENABLED=$NpEnabled"
     "/IACCEPTSQLSERVERLICENSETERMS"

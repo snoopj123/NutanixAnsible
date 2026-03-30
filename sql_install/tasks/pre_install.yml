@@ -13,16 +13,6 @@
     that: iso_stat.stat.exists
     fail_msg: "ISO not found at {{ sql_iso_path }} on {{ inventory_hostname }}"
 
-- name: Ensure required directories exist
-  ansible.windows.win_file:
-    path: "{{ item }}"
-    state: directory
-  loop:
-    - C:\Scripts
-    - "{{ sql_data_dir }}"
-    - "{{ sql_log_dir }}"
-    - "{{ sql_backup_dir }}"
-
 - name: Copy PowerShell install script to target
   ansible.windows.win_copy:
     src: files/Install-SQLServer.ps1
