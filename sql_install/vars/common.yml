@@ -11,8 +11,9 @@ sql_collation:         'SQL_Latin1_General_CP1_CI_AS'
 sql_tcp_enabled:       1
 sql_np_enabled:        0
 sql_data_dir:          "{{ sql_data_dir }}"
-sql_log_dir:           "{{ sql_userdb_log_dir }}"
-sql_temp_dir:          "{{ sql_temp_dir }}"
+sql_userdb_dir:        "{{ sql_userdb_dir }}"
+sql_userdb_log_dir:    "{{ sql_userdb_log_dir }}"
+sql_tempdb_dir:        "{{ sql_temp_dir }}"
 sql_tempdb_log_dir:    "{{ sql_tempdb_log_dir }}"
 sql_script_dest:       'C:\Scripts\Install-SQLServer.ps1'
 sql_install_log:       'C:\Scripts\SQLInstall.log'
