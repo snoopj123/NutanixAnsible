@@ -28,7 +28,7 @@
         -LogPath             "{{ sql_install_log }}"
   register: sql_install_result
   failed_when: sql_install_result.rc not in [0, 3010]
-  no_log: true  # Prevents task args (including passwords) from appearing in logs
+  no_log: false  # Prevents task args (including passwords) from appearing in logs
 
 - name: Show install output
   ansible.builtin.debug:
