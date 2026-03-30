@@ -236,10 +236,10 @@ if ($MappedDriveLetter) {
 # ---- Parse exit code ----
 switch ($exitCode) {
     0    { Write-Log "SUCCESS: SQL Server installed successfully." }
-    3010 { Write-Log "SUCCESS: SQL Server installed — reboot required (exit code 3010)." "WARN" }
+    3010 { Write-Log "SUCCESS: SQL Server installed - reboot required (exit code 3010)."}
     default {
-        Write-Log "FAILURE: Setup failed with exit code $exitCode." "ERROR"
-        Write-Log "Check setup logs at: C:\Program Files\Microsoft SQL Server\*\Setup Bootstrap\Log\" "ERROR"
+        Write-Log "FAILURE: Setup failed with exit code $exitCode."
+        Write-Log "Check setup logs at: C:\Program Files\Microsoft SQL Server\*\Setup Bootstrap\Log\"
         exit $exitCode
     }
 }
