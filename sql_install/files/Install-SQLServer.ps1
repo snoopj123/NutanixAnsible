@@ -182,9 +182,9 @@ $setupArgs = @(
     "/FEATURES=$Features"
     "/INSTANCENAME=$InstanceName"
     "/SQLSVCACCOUNT=$SqlSvcAccount"
-    "/AGTSVCACCOUNT=$AgtSvcAccount"
+    #"/AGTSVCACCOUNT=$AgtSvcAccount"
     "/SQLSYSADMINACCOUNTS=$SqlSysAdminAccounts"
-    "/SQLCOLLATION=$SqlCollation"
+    #"/SQLCOLLATION=$SqlCollation"
     "/INSTALLSQLDATADIR=$InstallDataDir"
     "/SQLUSERDBDIR=$InstallUserDBDir"
     "/SQLUSERDBLOGDIR=$InstallUserDBLogDir"
@@ -195,7 +195,7 @@ $setupArgs = @(
     "/IACCEPTSQLSERVERLICENSETERMS"
     "/UPDATEENABLED=False"
     "/BROWSERSVCSTARTUPTYPE=Disabled"
-    "/AGTSVCSTARTUPTYPE=Automatic"
+    #"/AGTSVCSTARTUPTYPE=Automatic"
 )
 
 # Mixed mode auth — append SA credentials
