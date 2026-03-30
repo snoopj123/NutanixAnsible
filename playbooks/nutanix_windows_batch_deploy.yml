@@ -238,3 +238,20 @@
         controller_password: "{{ lookup('env', 'CONTROLLER_PASSWORD') }}"
         validate_certs: false
       register: sql_volumes_deployment_job
+
+    - name: Launch SQL Installer template
+      ansible.controller.job_launch:
+        job_template: "Install SQL Server"
+        inventory: "{{ aap_inventory_name }}-{{ timestamp }}"
+        extra_vars:
+          sql_userdb_dir: "{{ sql_userdb_dir }}"
+          sql_userdb_log_dir: "{{ sql_userdb_log_dir }}"
+          sql_temp_dir: "{{ sql_temp_dir }}"
+          sql_tempdb_log_dir: "{{ sql_tempdb_log_dir }}"
+          sql_data_dir: "{{ sql_data_dir }}"
+        wait: true
+        controller_host: "{{ lookup('env', 'CONTROLLER_HOST') }}"
+        controller_username: "{{ lookup('env', 'CONTROLLER_USERNAME') }}"
+        controller_password: "{{ lookup('env', 'CONTROLLER_PASSWORD') }}"
+        validate_certs: false
+      register: sql_deployment_job
