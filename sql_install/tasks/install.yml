@@ -34,8 +34,8 @@
   ansible.windows.win_shell: |
     & "{{ sql_script_dest }}" `
       -IsoPath             "{{ sql_iso_path }}" `
-      -ShareUser           "{{ sql_share_user }}" `
-      -SharePassword       "{{ sql_share_password }}" `
+      -ShareUser           "{{ ansible_user }}" `
+      -SharePassword       "{{ ansible_password }}" `
       -Edition             "{{ sql_edition }}" `
       -InstanceName        "{{ sql_instance_name }}" `
       -Features            "{{ sql_features }}" `
