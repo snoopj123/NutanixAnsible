@@ -36,7 +36,6 @@
       -IsoPath             "{{ sql_iso_path }}" `
       -ShareUser           "{{ ansible_user }}" `
       -SharePassword       "{{ ansible_password }}" `
-      -Edition             "{{ sql_edition }}" `
       -InstanceName        "{{ sql_instance_name }}" `
       -Features            "{{ sql_features }}" `
       -SqlSysAdminAccounts "{{ sql_sysadmin_accounts }}" `
