@@ -61,10 +61,10 @@
   ansible.builtin.debug:
     var: sql_install_result.output
 
-# - name: Set reboot required fact
-#   ansible.builtin.set_fact:
-#     sql_reboot_required: "{{ sql_install_result.rc == 3010 }}"
-
 - name: Set reboot required fact
   ansible.builtin.set_fact:
-    sql_reboot_required: "{{ sql_install_result.result.exit_code == 3010 }}"
+    sql_reboot_required: "{{ sql_install_result.rc == 3010 }}"
+
+# - name: Set reboot required fact
+#   ansible.builtin.set_fact:
+#     sql_reboot_required: "{{ sql_install_result.result.exit_code == 3010 }}"
