@@ -3,32 +3,59 @@
 # Executes the PowerShell silent install script on the target server,
 # captures output, fetches the install log, and sets the reboot fact.
 
+# - name: Run SQL Server {{ sql_version_label }} silent install
+#   ansible.windows.win_powershell:
+#     script: |
+#       & "{{ sql_script_dest }}" `
+#         -IsoPath             "{{ sql_iso_path }}" `
+#         -ShareUser           "{{ ansible_user }}" `
+#         -SharePassword       "{{ ansible_password }}" `
+#         -InstanceName        "{{ sql_instance_name }}" `
+#         -Features            "{{ sql_features }}" `
+#         -SqlSysAdminAccounts "{{ sql_sysadmin_accounts }}" `
+#         -SqlSvcAccount       "{{ sql_svc_account }}" `
+#         -AgtSvcAccount       "{{ sql_agt_account }}" `
+#         -SecurityMode        "{{ sql_security_mode }}" `
+#         -SaPwd               "{{ sql_sa_password }}" `
+#         -SqlCollation        "{{ sql_collation }}" `
+#         -TcpEnabled          {{ sql_tcp_enabled }} `
+#         -NpEnabled           {{ sql_np_enabled }} `
+#         -InstallDataDir      "{{ sql_data_dir }}" `
+#         -InstallUserDBDir    "{{ sql_userdb_dir }}" `
+#         -InstallUserDBLogDir "{{ sql_userdb_log_dir }}" `
+#         -InstallTempDBDir    "{{ sql_tempdb_dir }}" `
+#         -InstallTempDBLogDir "{{ sql_tempdb_log_dir }}" `
+#         -LogPath             "{{ sql_install_log }}"
+#   register: sql_install_result
+#   failed_when: sql_install_result.rc not in [0, 3010]
+#   no_log: false  # Prevents task args (including passwords) from appearing in logs
+
 - name: Run SQL Server {{ sql_version_label }} silent install
-  ansible.windows.win_powershell:
-    script: |
-      & "{{ sql_script_dest }}" `
-        -IsoPath             "{{ sql_iso_path }}" `
-        -ShareUser           "{{ ansible_user }}" `
-        -SharePassword       "{{ ansible_password }}" `
-        -InstanceName        "{{ sql_instance_name }}" `
-        -Features            "{{ sql_features }}" `
-        -SqlSysAdminAccounts "{{ sql_sysadmin_accounts }}" `
-        -SqlSvcAccount       "{{ sql_svc_account }}" `
-        -AgtSvcAccount       "{{ sql_agt_account }}" `
-        -SecurityMode        "{{ sql_security_mode }}" `
-        -SaPwd               "{{ sql_sa_password }}" `
-        -SqlCollation        "{{ sql_collation }}" `
-        -TcpEnabled          {{ sql_tcp_enabled }} `
-        -NpEnabled           {{ sql_np_enabled }} `
-        -InstallDataDir      "{{ sql_data_dir }}" `
-        -InstallUserDBDir    "{{ sql_userdb_dir }}" `
-        -InstallUserDBLogDir "{{ sql_userdb_log_dir }}" `
-        -InstallTempDBDir    "{{ sql_tempdb_dir }}" `
-        -InstallTempDBLogDir "{{ sql_tempdb_log_dir }}" `
-        -LogPath             "{{ sql_install_log }}"
+  ansible.windows.win_shell: |
+    & "{{ sql_script_dest }}" `
+      -IsoPath             "{{ sql_iso_path }}" `
+      -ShareUser           "{{ sql_share_user }}" `
+      -SharePassword       "{{ sql_share_password }}" `
+      -Edition             "{{ sql_edition }}" `
+      -InstanceName        "{{ sql_instance_name }}" `
+      -Features            "{{ sql_features }}" `
+      -SqlSysAdminAccounts "{{ sql_sysadmin_accounts }}" `
+      -SqlSvcAccount       "{{ sql_svc_account }}" `
+      -AgtSvcAccount       "{{ sql_agt_account }}" `
+      -SecurityMode        "{{ sql_security_mode }}" `
+      -SaPwd               "{{ sql_sa_password }}" `
+      -SqlCollation        "{{ sql_collation }}" `
+      -TcpEnabled          {{ sql_tcp_enabled }} `
+      -NpEnabled           {{ sql_np_enabled }} `
+      -InstallDataDir      "{{ sql_data_dir }}" `
+      -InstallLogDir       "{{ sql_log_dir }}" `
+      -InstallBackupDir    "{{ sql_backup_dir }}" `
+      -LogPath             "{{ sql_install_log }}"
+  args:
+    executable: powershell.exe
   register: sql_install_result
   failed_when: sql_install_result.rc not in [0, 3010]
-  no_log: false  # Prevents task args (including passwords) from appearing in logs
+  no_log: false
 
 - name: Show install output
   ansible.builtin.debug:
