@@ -283,6 +283,19 @@
         validate_certs: false
       register: static_ip_deployment_job
 
+    - name: Launch Verify Static IP template
+      ansible.controller.job_launch:
+        job_template: "Verify Static IP"
+        inventory: "{{ aap_inventory_name }}-{{ timestamp }}"
+        extra_vars:
+          vm_ip_map: "{{ vm_ip_map }}"
+        wait: true
+        controller_host: "{{ lookup('env', 'CONTROLLER_HOST') }}"
+        controller_username: "{{ lookup('env', 'CONTROLLER_USERNAME') }}"
+        controller_password: "{{ lookup('env', 'CONTROLLER_PASSWORD') }}"
+        validate_certs: false
+      register: verify_ip_deployment_job
+
     - name: Launch Configure SQL Server Volumes and Mount Points template
       ansible.controller.job_launch:
         job_template: "Configure SQL Server Volumes and Mount Points"

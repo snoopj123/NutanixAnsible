@@ -1,0 +1,32 @@
+---
+# verify_static_ip.yml
+# Waits for each VM's new static IP to become reachable after
+# the scheduled IP change has fired on the target VMs.
+#
+# Expected extra_vars:
+#   vm_ip_map - dict mapping VM short hostname to IP, e.g. {"SQLVM01": "10.21.159.50"}
+
+- name: Verify static IP addresses are reachable
+  hosts: localhost
+  gather_facts: false
+
+  tasks:
+
+    - name: Wait for each new IP to become reachable
+      ansible.builtin.command:
+        cmd: "ping -c 1 -W 2 {{ item.value }}"
+      loop: "{{ vm_ip_map | dict2items }}"
+      loop_control:
+        label: "{{ item.key }} → {{ item.value }}"
+      register: ip_verify_results
+      until: ip_verify_results.rc == 0
+      retries: 30
+      delay: 5
+      changed_when: false
+
+    - name: Display verification results
+      ansible.builtin.debug:
+        msg: "{{ item.key }} ({{ item.value }}) — reachable ✓"
+      loop: "{{ vm_ip_map | dict2items }}"
+      loop_control:
+        label: "{{ item.key }}"
