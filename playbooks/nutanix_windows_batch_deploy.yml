@@ -9,6 +9,9 @@
     domain_join_password: "{{ lookup('env', 'WIN_DOMAIN_JOIN_PASSWORD') }}"
     validate_certs: false
     vm_list: []
+    subnet_mask: "255.255.255.0"
+    gateway: "10.21.153.1"
+    dns_servers: "10.21.159.11,10.21.159.12"
   
   tasks:
 
