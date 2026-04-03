@@ -1,0 +1,86 @@
+---
+# configure_static_ip.yml
+# Applies a static IP address to each Windows VM via WinRM.
+#
+# Expected extra_vars:
+#   vm_ip_map        - dict mapping VM hostname to IP, e.g. {"SQLVM01": "10.21.159.50", ...}
+#   subnet_mask      - e.g. "255.255.255.0"
+#   gateway          - e.g. "10.21.159.1"
+#   dns_servers       - comma-separated, e.g. "10.21.159.10,10.21.159.11"
+
+- name: Configure static IP addresses on Windows VMs
+  hosts: all
+  gather_facts: false
+
+  tasks:
+
+    - name: Determine IP for this host
+      ansible.builtin.set_fact:
+        target_ip: >-
+          {{ vm_ip_map[inventory_hostname_short] | default(vm_ip_map[inventory_hostname.split('.')[0]] | default('')) }}
+
+    - name: Fail if no IP mapped for this host
+      ansible.builtin.fail:
+        msg: "No IP address found in vm_ip_map for {{ inventory_hostname }} (short: {{ inventory_hostname_short }})"
+      when: target_ip | length == 0
+
+    - name: Display planned IP configuration
+      ansible.builtin.debug:
+        msg:
+          - "Host          : {{ inventory_hostname }}"
+          - "Static IP     : {{ target_ip }}"
+          - "Subnet Mask   : {{ subnet_mask }}"
+          - "Gateway       : {{ gateway }}"
+          - "DNS Servers   : {{ dns_servers }}"
+
+    - name: Apply static IP configuration
+      ansible.windows.win_shell: |
+        $adapter = Get-NetAdapter | Where-Object { $_.Status -eq 'Up' } | Select-Object -First 1
+        if (-not $adapter) {
+          Write-Error "No active network adapter found"
+          exit 1
+        }
+
+        # Remove existing IP configuration
+        Remove-NetIPAddress -InterfaceIndex $adapter.ifIndex -Confirm:$false -ErrorAction SilentlyContinue
+        Remove-NetRoute -InterfaceIndex $adapter.ifIndex -Confirm:$false -ErrorAction SilentlyContinue
+
+        # Calculate prefix length from subnet mask
+        $prefixLength = ([Convert]::ToString(
+          ([IPAddress]"{{ subnet_mask }}").Address, 2
+        ).TrimEnd('0').Length)
+
+        # Apply new static IP
+        New-NetIPAddress `
+          -InterfaceIndex $adapter.ifIndex `
+          -IPAddress "{{ target_ip }}" `
+          -PrefixLength $prefixLength `
+          -DefaultGateway "{{ gateway }}"
+
+        # Set DNS servers
+        $dnsServers = "{{ dns_servers }}".Split(',') | ForEach-Object { $_.Trim() }
+        Set-DnsClientServerAddress `
+          -InterfaceIndex $adapter.ifIndex `
+          -ServerAddresses $dnsServers
+
+        Write-Output "Static IP {{ target_ip }} applied successfully on adapter $($adapter.Name)"
+      register: ip_config_result
+
+    - name: Show IP configuration result
+      ansible.builtin.debug:
+        var: ip_config_result.stdout_lines
+
+    - name: Verify connectivity after IP change
+      ansible.windows.win_shell: |
+        $result = Test-NetConnection -ComputerName "{{ gateway }}" -WarningAction SilentlyContinue
+        if ($result.PingSucceeded) {
+          Write-Output "Gateway {{ gateway }} is reachable — static IP configuration verified"
+        } else {
+          Write-Error "Gateway {{ gateway }} is NOT reachable — check IP configuration"
+          exit 1
+        }
+      register: verify_result
+
+    - name: Show verification result
+      ansible.builtin.debug:
+        var: verify_result.stdout_lines

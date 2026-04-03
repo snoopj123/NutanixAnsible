@@ -68,6 +68,42 @@
         vm_names: "{{ query('sequence', 'start=1 end=' ~ (vm_count | int) ~ ' format=' ~ vm_prefix ~ '%02d') }}"
 
     # -------------------------------------------------------
+    # Generate sequential IP list from starting_ip
+    # -------------------------------------------------------
+    - name: Build IP address list from starting IP
+      ansible.builtin.set_fact:
+        vm_ip_list: >-
+          {%- set octets = starting_ip.split('.') -%}
+          {%- set base_net = octets[:3] | join('.') -%}
+          {%- set start_host = octets[3] | int -%}
+          {%- set ips = [] -%}
+          {%- for i in range(vm_count | int) -%}
+            {%- set _ = ips.append(base_net ~ '.' ~ (start_host + i) | string) -%}
+          {%- endfor -%}
+          {{ ips }}
+
+    - name: Display planned IP assignments
+      ansible.builtin.debug:
+        msg: "{{ dict(vm_names | zip(vm_ip_list)) }}"
+
+    # -------------------------------------------------------
+    # Validate IPs are not already in use (ping check)
+    # -------------------------------------------------------
+    - name: Check if IP addresses are already in use
+      ansible.builtin.command:
+        cmd: "ping -c 1 -W 1 {{ item }}"
+      loop: "{{ vm_ip_list }}"
+      register: ip_ping_results
+      changed_when: false
+      failed_when: false
+
+    - name: Fail if any IP address is already in use
+      ansible.builtin.fail:
+        msg: "IP address {{ item.item }} is already in use — aborting deployment"
+      loop: "{{ ip_ping_results.results }}"
+      when: item.rc == 0
+
+    # -------------------------------------------------------
     # Build Data Disk Spec from data_disks_gb
     # -------------------------------------------------------
 
@@ -220,6 +256,29 @@
         controller_password: "{{ lookup('env', 'CONTROLLER_PASSWORD') }}"
         validate_certs: false
       register: winrm_deployment_job
+
+    # -------------------------------------------------------
+    # Build VM-to-IP mapping and apply static IPs
+    # -------------------------------------------------------
+    - name: Build VM-to-IP mapping
+      ansible.builtin.set_fact:
+        vm_ip_map: "{{ dict(vm_names | zip(vm_ip_list)) }}"
+
+    - name: Launch Configure Static IP template
+      ansible.controller.job_launch:
+        job_template: "Configure Static IP"
+        inventory: "{{ aap_inventory_name }}-{{ timestamp }}"
+        extra_vars:
+          vm_ip_map: "{{ vm_ip_map }}"
+          subnet_mask: "{{ subnet_mask }}"
+          gateway: "{{ gateway }}"
+          dns_servers: "{{ dns_servers }}"
+        wait: true
+        controller_host: "{{ lookup('env', 'CONTROLLER_HOST') }}"
+        controller_username: "{{ lookup('env', 'CONTROLLER_USERNAME') }}"
+        controller_password: "{{ lookup('env', 'CONTROLLER_PASSWORD') }}"
+        validate_certs: false
+      register: static_ip_deployment_job
 
     - name: Launch Configure SQL Server Volumes and Mount Points template
       ansible.controller.job_launch:
