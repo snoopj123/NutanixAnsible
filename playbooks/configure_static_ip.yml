@@ -2,13 +2,19 @@
 # configure_static_ip.yml
 # Applies a static IP address to each Windows VM via WinRM.
 #
+# Strategy: the IP change is scheduled via a one-time Windows scheduled task
+# that fires 5 seconds after creation.  This lets the WinRM call return
+# cleanly before the adapter address changes and the session drops.
+# A second play on localhost then waits for the new IPs to come up.
+#
 # Expected extra_vars:
-#   vm_ip_map        - dict mapping VM hostname to IP, e.g. {"SQLVM01": "10.21.159.50", ...}
-#   subnet_mask      - e.g. "255.255.255.0"
-#   gateway          - e.g. "10.21.159.1"
-#   dns_servers       - comma-separated, e.g. "10.21.159.10,10.21.159.11"
+#   vm_ip_map   - dict mapping VM short hostname to IP, e.g. {"SQLVM01": "10.21.159.50"}
+#   subnet_mask - e.g. "255.255.255.0"
+#   gateway     - e.g. "10.21.159.1"
+#   dns_servers - comma-separated, e.g. "10.21.159.10,10.21.159.11"
 
-- name: Configure static IP addresses on Windows VMs
+# ── Play 1: Schedule the IP change on each VM via WinRM ──────────────
+- name: Schedule static IP change on Windows VMs
   hosts: all
   gather_facts: false
 
@@ -17,11 +23,15 @@
     - name: Determine IP for this host
       ansible.builtin.set_fact:
         target_ip: >-
-          {{ vm_ip_map[inventory_hostname_short] | default(vm_ip_map[inventory_hostname.split('.')[0]] | default('')) }}
+          {{ vm_ip_map[inventory_hostname_short]
+             | default(vm_ip_map[inventory_hostname.split('.')[0]]
+             | default('')) }}
 
     - name: Fail if no IP mapped for this host
       ansible.builtin.fail:
-        msg: "No IP address found in vm_ip_map for {{ inventory_hostname }} (short: {{ inventory_hostname_short }})"
+        msg: >-
+          No IP address found in vm_ip_map for
+          {{ inventory_hostname }} (short: {{ inventory_hostname_short }})
       when: target_ip | length == 0
 
     - name: Display planned IP configuration
@@ -33,28 +43,28 @@
           - "Gateway       : {{ gateway }}"
           - "DNS Servers   : {{ dns_servers }}"
 
-    - name: Apply static IP configuration
+    - name: Schedule static IP change via delayed scheduled task
       ansible.windows.win_shell: |
+        $taskName  = 'AnsibleSetStaticIP'
+        $scriptBlock = @'
+        Start-Sleep -Seconds 5
         $adapter = Get-NetAdapter | Where-Object { $_.Status -eq 'Up' } | Select-Object -First 1
-        if (-not $adapter) {
-          Write-Error "No active network adapter found"
-          exit 1
-        }
+        if (-not $adapter) { exit 1 }
+
+        # Calculate prefix length from subnet mask
+        $maskBytes = ([IPAddress]"{{ subnet_mask }}").GetAddressBytes()
+        $bits = ($maskBytes | ForEach-Object { [Convert]::ToString($_, 2).PadLeft(8, '0') }) -join ''
+        $prefixLength = ($bits.ToCharArray() | Where-Object { $_ -eq '1' }).Count
 
         # Remove existing IP configuration
         Remove-NetIPAddress -InterfaceIndex $adapter.ifIndex -Confirm:$false -ErrorAction SilentlyContinue
-        Remove-NetRoute -InterfaceIndex $adapter.ifIndex -Confirm:$false -ErrorAction SilentlyContinue
-
-        # Calculate prefix length from subnet mask
-        $prefixLength = ([Convert]::ToString(
-          ([IPAddress]"{{ subnet_mask }}").Address, 2
-        ).TrimEnd('0').Length)
+        Remove-NetRoute    -InterfaceIndex $adapter.ifIndex -Confirm:$false -ErrorAction SilentlyContinue
 
         # Apply new static IP
         New-NetIPAddress `
           -InterfaceIndex $adapter.ifIndex `
-          -IPAddress "{{ target_ip }}" `
-          -PrefixLength $prefixLength `
+          -IPAddress      "{{ target_ip }}" `
+          -PrefixLength   $prefixLength `
           -DefaultGateway "{{ gateway }}"
 
         # Set DNS servers
@@ -62,25 +72,49 @@
         Set-DnsClientServerAddress `
           -InterfaceIndex $adapter.ifIndex `
           -ServerAddresses $dnsServers
+        '@
 
-        Write-Output "Static IP {{ target_ip }} applied successfully on adapter $($adapter.Name)"
-      register: ip_config_result
+        $scriptPath = 'C:\Scripts\SetStaticIP.ps1'
+        Set-Content -Path $scriptPath -Value $scriptBlock -Force
 
-    - name: Show IP configuration result
+        # Remove any previous run of this task
+        Unregister-ScheduledTask -TaskName $taskName -Confirm:$false -ErrorAction SilentlyContinue
+
+        # Create a one-time task that runs immediately (the script itself sleeps 5s first)
+        $action  = New-ScheduledTaskAction -Execute 'powershell.exe' `
+                     -Argument "-ExecutionPolicy Bypass -File `"$scriptPath`""
+        $trigger = New-ScheduledTaskTrigger -Once -At (Get-Date).AddSeconds(3)
+        $principal = New-ScheduledTaskPrincipal -UserId 'SYSTEM' -RunLevel Highest -LogonType ServiceAccount
+        Register-ScheduledTask -TaskName $taskName -Action $action -Trigger $trigger `
+                               -Principal $principal -Force | Out-Null
+
+        Write-Output "Scheduled task '$taskName' created — IP change will apply in ~8 seconds"
+
+    - name: Show scheduling confirmation
       ansible.builtin.debug:
-        var: ip_config_result.stdout_lines
+        msg: "Static IP {{ target_ip }} change scheduled on {{ inventory_hostname }}"
 
-    - name: Verify connectivity after IP change
-      ansible.windows.win_shell: |
-        $result = Test-NetConnection -ComputerName "{{ gateway }}" -WarningAction SilentlyContinue
-        if ($result.PingSucceeded) {
-          Write-Output "Gateway {{ gateway }} is reachable — static IP configuration verified"
-        } else {
-          Write-Error "Gateway {{ gateway }} is NOT reachable — check IP configuration"
-          exit 1
-        }
-      register: verify_result
+# ── Play 2: Verify new IPs from localhost ────────────────────────────
+- name: Verify static IP addresses are reachable
+  hosts: localhost
+  gather_facts: false
 
-    - name: Show verification result
+  tasks:
+
+    - name: Wait for each new IP to become reachable
+      ansible.builtin.command:
+        cmd: "ping -c 1 -W 2 {{ item.value }}"
+      loop: "{{ vm_ip_map | dict2items }}"
+      loop_control:
+        label: "{{ item.key }} → {{ item.value }}"
+      register: ip_verify_results
+      until: ip_verify_results.rc == 0
+      retries: 30
+      delay: 5
+
+    - name: Display verification results
       ansible.builtin.debug:
-        var: verify_result.stdout_lines
+        msg: "{{ item.key }} ({{ item.value }}) — reachable ✓"
+      loop: "{{ vm_ip_map | dict2items }}"
+      loop_control:
+        label: "{{ item.key }}"
