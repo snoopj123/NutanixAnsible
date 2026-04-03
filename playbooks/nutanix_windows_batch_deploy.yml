@@ -286,7 +286,6 @@
     - name: Launch Verify Static IP template
       ansible.controller.job_launch:
         job_template: "Verify Static IP"
-        inventory: "{{ aap_inventory_name }}-{{ timestamp }}"
         extra_vars:
           vm_ip_map: "{{ vm_ip_map }}"
         wait: true
