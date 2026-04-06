@@ -22,13 +22,13 @@
     fail_msg:    "{{ sql_service_name }} is not running on {{ inventory_hostname }}"
     success_msg: "{{ sql_version_label }} service confirmed running on {{ inventory_hostname }}"
 
-# - name: Confirm SQL version via sqlcmd
-#   ansible.windows.win_powershell:
-#     script: |
-#       $result = sqlcmd -S localhost\{{ sql_instance_name }} -Q "SELECT @@VERSION" -h -1 2>&1
-#       Write-Output $result
-#   register: sqlcmd_version
+- name: Confirm SQL version via sqlcmd
+  ansible.windows.win_powershell:
+    script: |
+      $result = sqlcmd -S tcp:localhost\{{ sql_instance_name }},1433 -E -No -Q "SELECT @@VERSION" -h -1 2>&1
+      Write-Output $result
+  register: sqlcmd_version
 
-# - name: Display confirmed SQL version
-#   ansible.builtin.debug:
-#     var: sqlcmd_version.output
+- name: Display confirmed SQL version
+  ansible.builtin.debug:
+    var: sqlcmd_version.output
